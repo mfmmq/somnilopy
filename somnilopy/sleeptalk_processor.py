@@ -13,21 +13,22 @@ class SleeptalkProcessor:
     def __init__(self, folder='autosave'):
         self.folder = folder
         self.sample_width = pyaudio.get_sample_size(pyaudio.paInt16)
-        self.queue_snapshot = []
+        self.loop = True
 
-    def process_snippets(self, snippets_queue):
-        sleep_time = 2
-        while True:
+    def process_snippets(self, snippets_queue, stop_event, default_sleep_time=2):
+        sleep_time = default_sleep_time
+        while self.loop and not stop_event.is_set():
             if len(snippets_queue):
-                snippet = snippets_queue.pop(0)
-                self.write_to_file(snippet)
-                sleep_time = 2
+                snippet_tuple = snippets_queue.pop(0)
+                self.write_to_file(snippet_tuple)
+                sleep_time = default_sleep_time
             else:
                 time.sleep(sleep_time)
-                sleep_time += 10
+        self.stop(snippets_queue)
 
-    def write_to_file(self, snippet):
-        file_name = f"autosave_{datetime.now().strftime('%m-%d_%H-%M')}.wav"
+    def write_to_file(self, snippet_tuple):
+        snippet, timestamp = snippet_tuple
+        file_name = f"autosave_{timestamp.strftime('%m-%d_%H-%M')}.wav"
         file_path = os.path.join(self.folder, file_name)
         snippet = pack('<' + ('h' * len(snippet)), *snippet)
         wf = wave.open(file_path, 'wb')
@@ -38,5 +39,10 @@ class SleeptalkProcessor:
         wf.close()
         logging.info(f"Saved snippet at {file_path}")
 
-
+    def stop(self, snippets_queue):
+        logging.info(f"Stopping SleeptalkProcessor, stop event set")
+        if snippets_queue:
+            for snippet_tuple in snippets_queue:
+                self.write_to_file(snippet_tuple)
+            logging.info(f"Wrote {len(snippets_queue)} to file")
 
