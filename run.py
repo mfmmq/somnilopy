@@ -1,7 +1,10 @@
 import logging
 import argparse
+import os
 from somnilopy.somnilopy import Somnilopy
 
+import wave
+import contextlib
 
 def setup_argparse():
     parser = argparse.ArgumentParser(description="Record sleeptalking")
@@ -46,4 +49,22 @@ if __name__ == "__main__":
 
     snippets_queue = []
     somnilopy = Somnilopy(args.schedule, args.force, args.dir, args.file_name)
-    somnilopy.run()
+    #somnilopy.run()
+    from flask import Flask, render_template, request, jsonify, Response
+    app = Flask(__name__)
+
+    @app.route('/', methods = ['GET'])
+    def home():
+        all_file_names = os.listdir(args.dir)
+        file_info = []
+        for name in all_file_names:
+            day, time = name.split("_")[1:3]
+            with contextlib.closing(wave.open(audiofile, 'r')) as f:
+                frames = f.getnframes()
+                rate = f.getframerate()
+                length = frames / float(rate)
+                print(length)
+                file_info.append({"day": day, "time": time, "length": length})
+
+        return render_template("index.html", file_info=file_info)
+    app.run()
