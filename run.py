@@ -30,7 +30,7 @@ def setup_argparse():
                         default="snippet",
                         type=str
                         )
-        parser.add_argument("--min-threshold",
+    parser.add_argument("--min-threshold",
                         help="Minimum threshold to consider a noise as sleeptalking. Defaults to 600",
                         dest="min_threshold",
                         action="store",
