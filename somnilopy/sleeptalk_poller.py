@@ -9,7 +9,7 @@ from array import array
 
 
 class SleeptalkPoller:
-    def __init__(self, force):
+    def __init__(self, force, min_snippet_time=1, max_silence_time=1, min_is_sleeptalking_threshold=600):
 
         # Variables to set up our stream
         self.chunk = 5000
@@ -20,9 +20,9 @@ class SleeptalkPoller:
         self.stream = None
 
         # Variables to set up our thresholds
-        self.min_snippet_time = 1  # seconds
-        self.max_silence_time = 1  # seconds
-        self.min_is_sleeptalking_threshold = 600
+        self.min_snippet_time = min_snippet_time  # seconds
+        self.max_silence_time = max_silence_time  # seconds
+        self.min_is_sleeptalking_threshold = min_is_sleeptalking_threshold
 
 
     def listen_for_snippets(self, snippets_queue, stop_event):
