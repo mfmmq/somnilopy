@@ -7,16 +7,17 @@ from somnilopy.sleeptalk_poller import SleeptalkPoller
 
 
 class Somnilopy:
-    def __init__(self, input_schedule, force_recording):
+    def __init__(self, input_schedule, force_recording, folder, file_name):
         self.snippets_queue = []
-        self.folder = 'autosave'
+        self.folder = folder
+        self.file_name = file_name
         self.force_recording = force_recording
         self.stop_event = Event()
 
         self.start_time, self.stop_time = input_schedule.split('>')
 
         self.sleeptalk_poller = SleeptalkPoller(self.force_recording)
-        self.sleeptalk_processor = SleeptalkProcessor(self.folder)
+        self.sleeptalk_processor = SleeptalkProcessor(self.folder, self.file_name)
         self.t_poller = None
         self.t_processor = None
 

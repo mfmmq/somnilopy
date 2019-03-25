@@ -36,14 +36,13 @@ class SleeptalkPoller:
         )
 
         logging.info("Now recording!")
-        talking_counter = 0
         silent_counter = 1
 
         snippet = array('h')
         while not stop_event.is_set():
             data_chunk = array('h', self.stream.read(self.chunk))
             if self.is_sleeptalking_noise(data_chunk):
-                if talking_counter == self.t_recording:
+                if self.is_recording_sleeptalking(snippet):
                     logging.info("Started new recording")
                 snippet.extend(data_chunk)
                 silent_counter = 0
@@ -54,7 +53,7 @@ class SleeptalkPoller:
                 snippet = array('h')
             if self.is_recording_sleeptalking(snippet) and self.is_too_much_silence(silent_counter):
                 # Move the snippet to another queue to be processed so we don't delay the recording thread
-                # Debatable whether the recording thread would ever miss anything but why not?
+                # This is done in anticipation some audio processing has potential to take a while
                 snippets_queue.append((snippet, datetime.now()))
                 logging.info(f"Added snippet of sleeptalking length {len(snippet) / self.rate} seconds")
                 snippet = array('h')
@@ -66,7 +65,7 @@ class SleeptalkPoller:
         return max(night_noise) > self.min_is_sleeptalking_threshold
 
     def is_recording_sleeptalking(self, snippet):
-        # If SleeptalkPoller is currently recording sleeptalking e.g. greater than the threshold,
+        # If SleeptalkPoller is currently recording sleeptalking e.g. longer than the threshold,
         # return True
         return len(snippet) / self.rate > self.min_is_sleeptalking_threshold
 

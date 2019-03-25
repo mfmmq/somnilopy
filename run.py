@@ -1,8 +1,5 @@
 import logging
-import signal
 import argparse
-from flask import Flask
-from flask_restful import Resource, Api
 from somnilopy.somnilopy import Somnilopy
 
 
@@ -28,7 +25,7 @@ def setup_argparse():
                         )
     parser.add_argument("--prefix",
                         help="Prefix of audio file names. Defaults to snippet",
-                        dest="dir",
+                        dest="file_name",
                         action="store",
                         default="snippet",
                         type=str
@@ -48,9 +45,5 @@ if __name__ == "__main__":
     setup_logging()
 
     snippets_queue = []
-    somnilopy = Somnilopy(args.schedule, args.force)
+    somnilopy = Somnilopy(args.schedule, args.force, args.dir, args.file_name)
     somnilopy.run()
-    #app = Flask(__name__)
-    #api = Api(app)
-
-    #api.add_resource(Somnilopy, '/')

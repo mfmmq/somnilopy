@@ -10,8 +10,9 @@ import pyaudio
 
 
 class SleeptalkProcessor:
-    def __init__(self, folder='autosave'):
+    def __init__(self, folder, file_prefix):
         self.folder = folder
+        self.file_prefix = file_prefix
         self.sample_width = pyaudio.get_sample_size(pyaudio.paInt16)
         self.loop = True
 
@@ -28,7 +29,7 @@ class SleeptalkProcessor:
 
     def write_to_file(self, snippet_tuple):
         snippet, timestamp = snippet_tuple
-        file_name = f"autosave_{timestamp.strftime('%m-%d_%H-%M')}.wav"
+        file_name = f"{self.file_prefix}_{timestamp.strftime('%m-%d_%H-%M')}.wav"
         file_path = os.path.join(self.folder, file_name)
         snippet = pack('<' + ('h' * len(snippet)), *snippet)
         wf = wave.open(file_path, 'wb')
