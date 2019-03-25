@@ -42,8 +42,6 @@ class SleeptalkPoller:
         while not stop_event.is_set():
             data_chunk = array('h', self.stream.read(self.chunk))
             if self.is_sleeptalking_noise(data_chunk):
-                if self.is_recording_sleeptalking(snippet):
-                    logging.info("Started new recording")
                 snippet.extend(data_chunk)
                 silent_counter = 0
             else:
@@ -67,7 +65,7 @@ class SleeptalkPoller:
     def is_recording_sleeptalking(self, snippet):
         # If SleeptalkPoller is currently recording sleeptalking e.g. longer than the threshold,
         # return True
-        return len(snippet) / self.rate > self.min_is_sleeptalking_threshold
+        return len(snippet) / self.rate > self.min_snippet_time
 
     def is_too_much_silence(self, silent_counter):
         # If the last few chunks have been silent for greater than max_silence_time, return True
