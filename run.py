@@ -30,6 +30,13 @@ def setup_argparse():
                         default="snippet",
                         type=str
                         )
+        parser.add_argument("--min-threshold",
+                        help="Minimum threshold to consider a noise as sleeptalking. Defaults to 600",
+                        dest="min_threshold",
+                        action="store",
+                        default=600,
+                        type=int
+                        )
     args = parser.parse_args()
     return args
 
@@ -45,5 +52,5 @@ if __name__ == "__main__":
     setup_logging()
 
     snippets_queue = []
-    somnilopy = Somnilopy(args.schedule, args.force, args.dir, args.file_name)
+    somnilopy = Somnilopy(args.schedule, args.force, args.dir, args.file_name, args.min_threshold)
     somnilopy.run()
