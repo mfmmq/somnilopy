@@ -7,7 +7,8 @@ from somnilopy.sleeptalk_poller import SleeptalkPoller
 
 
 class Somnilopy:
-    def __init__(self, input_schedule, force_recording, folder, file_name, min_is_sleeptalking_threshold):
+    def __init__(self, input_schedule, force_recording, folder, file_name, min_snippet_time, max_silence_time,
+                 min_is_sleeptalking_threshold):
         self.snippets_queue = []
         self.folder = folder
         self.file_name = file_name
@@ -16,7 +17,11 @@ class Somnilopy:
 
         self.start_time, self.stop_time = input_schedule.split('>')
 
-        self.sleeptalk_poller = SleeptalkPoller(self.force_recording, min_is_sleeptalking_threshold=min_is_sleeptalking_threshold)
+        self.sleeptalk_poller = SleeptalkPoller(
+            min_snippet_time=min_snippet_time,
+            max_silence_time=max_silence_time,
+            min_is_sleeptalking_threshold=min_is_sleeptalking_threshold
+        )
         self.sleeptalk_processor = SleeptalkProcessor(self.folder, self.file_name)
         self.t_poller = None
         self.t_processor = None

@@ -1,7 +1,4 @@
 import logging
-from datetime import datetime
-import signal
-import threading
 from struct import pack
 import wave
 import os

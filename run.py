@@ -37,6 +37,20 @@ def setup_argparse():
                         default=600,
                         type=int
                         )
+    parser.add_argument("--snippet-length",
+                        help="Minimum length in seconds of recorded noise to be a snippet. Defaults to 1",
+                        dest="min_snippet_time",
+                        action="store",
+                        default=1,
+                        type=int
+                        )
+    parser.add_argument("--silence-length",
+                        help="Maximum length in seconds of no noise to be silence. Defaults to 2",
+                        dest="max_silence_time",
+                        action="store",
+                        default=2,
+                        type=int
+                        )
     args = parser.parse_args()
     return args
 
@@ -51,6 +65,9 @@ if __name__ == "__main__":
     args = setup_argparse()
     setup_logging()
 
+    # Create autosave folder todo
+
     snippets_queue = []
-    somnilopy = Somnilopy(args.schedule, args.force, args.dir, args.file_name, args.min_threshold)
+    somnilopy = Somnilopy(args.schedule, args.force, args.dir, args.file_name, args.min_snippet_time,
+                          args.max_silence_time, args.min_threshold)
     somnilopy.run()

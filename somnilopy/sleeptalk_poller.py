@@ -9,7 +9,7 @@ from array import array
 
 
 class SleeptalkPoller:
-    def __init__(self, force, min_snippet_time=1, max_silence_time=1, min_is_sleeptalking_threshold=600):
+    def __init__(self, min_snippet_time=1, max_silence_time=1, min_is_sleeptalking_threshold=600):
 
         # Variables to set up our stream
         self.chunk = 5000
@@ -46,6 +46,11 @@ class SleeptalkPoller:
                 silent_counter = 0
             else:
                 silent_counter += 1
+            # Different scenarios to account for:
+            #   - Talking normally and not sleeping -- ignore
+            #   - Silence for a while -- ignore and keep deleting
+            #   - Sleep talking has ended with silent block, save recording
+            #   - Sleep talking has started, write to file
             if self.is_too_much_silence(silent_counter) and not self.is_recording_sleeptalking(snippet):
                 # Reset snippet and start anew so we don't have loads of silence in our recordings
                 snippet = array('h')
