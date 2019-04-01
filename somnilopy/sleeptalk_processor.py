@@ -15,6 +15,10 @@ class SleeptalkProcessor:
 
     def process_snippets(self, snippets_queue, stop_event, default_sleep_time=2):
         sleep_time = default_sleep_time
+        #with cv:
+        #cv.wait_for(snippet_to_be_ready_for_processing)
+        # get snippet
+        # acquire lock, get snippet, release loc
         while self.loop and not stop_event.is_set():
             if len(snippets_queue):
                 snippet_tuple = snippets_queue.pop(0)

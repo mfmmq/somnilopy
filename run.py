@@ -38,14 +38,14 @@ def setup_argparse():
                         type=int
                         )
     parser.add_argument("--snippet-length",
-                        help="Minimum length in seconds of recorded noise to be a snippet. Defaults to 1",
+                        help="Minimum length in seconds of recorded noise to be a snippet. Defaults to 0.5s",
                         dest="min_snippet_time",
                         action="store",
-                        default=1,
+                        default=0.5,
                         type=int
                         )
     parser.add_argument("--silence-length",
-                        help="Maximum length in seconds of no noise to be silence. Defaults to 2",
+                        help="Maximum length in seconds of no noise to be silence. Defaults to 2s",
                         dest="max_silence_time",
                         action="store",
                         default=2,
