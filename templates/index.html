@@ -30,11 +30,53 @@
       color: #555555;
       font-size: 10pt;
       }
-      a.disabled:hover {
+      .nav-link:hover {
+        color: darkblue;
+      }
+      .date-link {
+        color: #aaaaaa;
+        font-size: 10pt;
+        margin-right: 20px;
+      }
+      .date-link:hover {
+        color: darkcyan;
+        text-decoration: underline;
+      }
+      .date-link.active{
+        color: darkolivegreen;
+        text-decoration: underline;
+      }
+      .time-link {
+        color: #777777;
+        font-size: 10pt;
+        margin-right: 20px;
+      }
+      .time-link:hover {
+        color: darkcyan;
+        text-decoration: underline;
+      }
+      .time-link.active {
+        color: darkolivegreen;
+        text-decoration: underline;
+      }
+      .section {
+        font-weight: 450;
+      }
+      .name {
+        min-width: 40px
+      }
+      .sec {
+        padding-bottom: 5px;
+      }
+      .navlink.disabled:hover {
       cursor: default;
       }
+      #message {
+        font-size: 15pt;
+        color: #999999;
+      }
       a:hover {
-        color: navy
+
       }
       .active {
       color: teal;
@@ -49,40 +91,65 @@
       body,div, footer {
         font-size: 13px;
         background-color: #F4F7F3 !important;
+        color: #333333;
       }
     </style>
   </head>
   <body>    
-    <div class="jumbotron jumbotron-fluid" style="background-color: white; padding-bottom: 25px">
-      <div class="container">
+    <div class="jumbotron jumbotron-fluid" style="background-color: white; padding-bottom: 0px">
+      <div class="container" style="padding-bottom:20px">
         <div class="row">
-          <div class="col-sm-2">
+          <div class="col" style="min-width: 100px">
             <font style="font-size:20px">Somnilopy</font>
           </div>
-          <div class="col">
+          <div class="col-sm-10">
             <nav class="nav">
               <a class="nav-link active" href="index.html">Overview</a>
               <a class="nav-link disabled"> | </a>
-              <a class="nav-link" href="https://mqiu.io">mqiu.io</a>
-              <a class="nav-link" href="https://github.com/mfmmq/somnilopy">Github</a>
+              <a class="nav-link" href="https://mqiu.io" target="_blank">mqiu.io</a>
+              <a class="nav-link" href="https://github.com/mfmmq/somnilopy" target="_blank">Github</a>
             </nav>
           </div>
         </div>
-          
       </div>
-    </div>
-    <div class="row">
-      <div class="col-sm-9">
-          <div class="card-body">
-              <canvas id="myChart"></canvas>
+      <div class="container" style="min-height: 100px">
+        <div class="row" style="padding-bottom: 0px">
+          <div class="col-sm-1 section name" id="datenav-name"></div>
+          <div class="col-sm-11 sec" id="datenav">
           </div>
+        </div>        
+        <div class="row">
+          <div class="col-sm-1 section name" id="timenav-name">
+            
+          </div>
+          <div class="col-sm-11 sec" id="timenav">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-1 section name" id="info-name">
+            
+          </div>
+          <div class="col-sm-11 sec" id="info" >
+          </div>
+        </div>        
+        <div class="row" style="padding-bottom: 10px">
+          <div class="col-sm-1 section name"></div>
+          <div class="col-sm-11 sec" id="actions" >
+          </div>
+        </div>
+        <div class="row" style="padding-bottom: 10px">
+          <div class="col" id="message" class="message"></div>
+        </div>
       </div>
-    </div>
-    <div class="jumbotron jumbotron-fluid" style="background-color: white; padding-bottom: 25px">
-      <div class="container">    <div class="row">
-      <div class="col"><div id="info">teset</div></div>
-    </div></div>
-
+      <div class="container">
+        <div class="row" style="padding-bottom: 30px">
+          <div class="col-sm-9">
+            <canvas id="myChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="container">    
+      </div>
     </div>
     <footer class="jumbotron jumbotron-fluid" style="background-color: white; margin-top:30px; margin-bottom: 0px;">
       <div class="container" style="font-size:10px; color: #777777">
@@ -93,106 +160,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script src="../static/format/chart.min.js"></script>
-    <script>
-      var file_info = [
-        {"start_time": "00:31", "length": "90", "path": ""},
-        {"start_time": "04:31", "length": "360", "path": ""},
-        {"start_time": "02:01", "length": "40", "path": ""},
-        {"start_time": "00:51", "length": "20", "path": ""},
-        {"start_time": "05:55", "length": "200", "path": ""}
-    ];
-
-    var file_info = {{file_info}}
-
-    var recording_lengths = Array(file_info.length)
-    for (i = 0; i < file_info.length; i++) {
-        recording_lengths[i] = file_info[i]["length"]
-    }
-
-    var time_labels = Array(file_info.length);
-    for (i = 0; i < file_info.length; i++) {
-        time_labels[i] = file_info[i]["start_time"]
-    }
-
-    var barchartdata =  {
-            labels: time_labels,
-            datasets: [
-                {
-                label: 's',
-                data: recording_lengths,
-                borderWidth: 1
-            }]
-        };
-
-    function load_file_info() {
-        var file_info_html = ""
-        for (i=0; i<file_info.length; i++) {
-
-        }
-        document.getElementById('info').innerHTML = ""
-    }
-
-    var ctx = document.getElementById('myChart').getContext('2d');
-    var myChart = new Chart(ctx, {
-        type: 'bar',
-        data: barchartdata,
-        defaultFontFamily: "'AlteHaasGrotesk','format/font/AlteHaasGrotesk.eot','format/font/AlteHaasGrotesk.woff','format/font/AlteHaasGrotesk.ttf'",
-        options: {
-            legend: {
-                display: false
-            },
-            onClick: function(evt) {
-                var element = myChart.getElementAtEvent(evt);
-                if(element.length > 0) {
-                    var ind = element[0]._index;
-                    if(confirm('Do you want to remove this point?')){
-                        document.getElementById('info').innerHTML = "Hello";
-                        data.datasets[0].data.splice(ind, 1);
-                        document.getElementById('info').innerHTML = "Hello1";
-                        data.labels.splice(ind, 1);
-                        document.getElementById('info').innerHTML = "Hello2";
-                        myChart.update(data);
-                    }}
-
-            },
-            tooltips: {
-              mode: 'index',
-              intersect: true,
-              displayColors: false
-            },
-            scales: {
-                yAxes: [{
-                    scaleLabel: {
-                        display: true,
-                        labelString: "Length in Seconds"},
-                    ticks: {
-                        beginAtZero: true
-                    },
-                    stacked: true,
-                    gridLines: {
-                        display: true,
-                        drawBorder: true,
-                        drawOnChartArea: false
-                    }
-                }],
-                xAxes: [{
-                    scaleLabel: {
-                        display:true,
-                        labelString: "Time of Day"
-                    },
-                    stacked: true,
-                    gridLines: {
-                        display: true,
-                        drawBorder: true,
-                        drawOnChartArea: false
-                    }
-                }
-
-              ]
-            }
-        }
-    });
-    </script>
+    <script src="../static/sleeptalk.js"></script>
   </body>
   
 </html>
