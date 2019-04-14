@@ -29,7 +29,7 @@ class SleeptalkProcessor:
 
     def write_to_file(self, snippet_tuple):
         snippet, timestamp = snippet_tuple
-        file_name = f"{self.file_prefix}_{timestamp.strftime('%m-%d_%H-%M')}.wav"
+        file_name = f"{self.file_prefix}_{timestamp.strftime('%m-%d_%H-%M-%S')}.wav"
         file_path = os.path.join(self.folder, file_name)
         snippet = pack('<' + ('h' * len(snippet)), *snippet)
         wf = wave.open(file_path, 'wb')

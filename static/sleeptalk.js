@@ -3,14 +3,13 @@ var DEFAULT_BORDER_COLOR = "rgb(120, 120, 120, 0.5)";
 var DOWNLOAD_URL = "download";
 var HOST = "http://127.0.0.1:5000";
 
-function loadPage() {
+function loadPage(date_num, time_num) {
   var request = new XMLHttpRequest();
   request.open('GET', HOST+'/files');
   request.send();
   document.getElementById("message").innerHTML = "Could not load sleeptalking data. Is the server running?"
   request.onreadystatechange=(e)=>{
     // Do some initialising variables
-    var ctx = document.getElementById('myChart').getContext('2d');
     // Get data
     obj_files = JSON.parse(request.responseText);
     unique_days = createDays(obj_files);
@@ -20,28 +19,27 @@ function loadPage() {
     document.getElementById("timenav-name").innerHTML = "Time"
     document.getElementById("info-name").innerHTML = "About"
 
-    // Load chart
-    chart_data = createChartData(obj_files[0].files)
-    chart = createChart(ctx, chart_data);
     // Load page
-    loadDateLinks(0);
-    loadTimeLinks(0, 0)
-    loadFileInfo(0,0); 
+    loadDateLinks(date_num);
+    loadTimeLinks(date_num, time_num)
+    loadFileInfo(date_num, time_num); 
+    loadButtons(date_num, time_num)
   };
 }
 
-function removeData(evt, myChart) {
-  var element = myChart.getElementAtEvent(evt);
+function selectBar(evt, date_num) {
+  var element = chart.getElementAtEvent(evt);
   if(element.length > 0) {
     var ind = element[0]._index;
-    myChart.data.datasets[0].data.splice(ind, 1);
-    myChart.data.labels.splice(ind, 1);
-    myChart.update();
+    //chart.data.datasets[0].data.splice(ind, 1);
+    //chart.data.labels.splice(ind, 1);
+    loadTimeLinks(date_num, ind)
+    chart.update();
   }
 }
 
-function createChart(ctx, barchartdata) {
-  var myChart = new Chart(ctx, {
+function createChart(ctx, barchartdata, date_num) {
+  chart = new Chart(ctx, {
     type: 'bar',
     data: barchartdata,
     defaultFontFamily: "'AlteHaasGrotesk','format/font/AlteHaasGrotesk.eot','format/font/AlteHaasGrotesk.woff','format/font/AlteHaasGrotesk.ttf'",
@@ -57,8 +55,7 @@ function createChart(ctx, barchartdata) {
         if (point.length) e.target.style.cursor = 'pointer';
         else e.target.style.cursor = 'default';
       },
-      onClick: function(evt) {   
-          removeData(evt, myChart)
+      onClick: function(e) {   selectBar(e, date_num)
       },
       tooltips: {
         mode: 'index',
@@ -85,6 +82,7 @@ function createChart(ctx, barchartdata) {
                   display:true,
                   labelString: "Time of Day"
               },
+              maxBarThickness: 30,
               stacked: true,
               gridLines: {
                   display: true,
@@ -97,7 +95,6 @@ function createChart(ctx, barchartdata) {
         }
       }
   });
-  return myChart
 }
 
 function createChartData(day_obj_files) {
@@ -146,22 +143,24 @@ function loadDateLinks(date_num) {
   }
   link_string = link_string.concat("</i></font>")
   document.getElementById("datenav").innerHTML = link_string;
-  loadChartData(obj_files[date_num])
+  console.log(obj_files, date_num)
+  recreateChart(date_num)
   loadTimeLinks(date_num, 0)
-  
 }
 
-function loadChartData(day_obj_files) {
-  chart_data = createChartData(day_obj_files.files);
-  chart.data = chart_data;
-  chart.update()
+function recreateChart(date_num) {
+  if (chart) {
+    chart.destroy();
+  }
+  chart_data = createChartData(obj_files[date_num].files);
+  createChart(ctx, chart_data, date_num)
 }
 
 function loadChartBarColor(date_num, time_num) {
   for (i=0; i<obj_files[date_num].files.length; i++) {
     if (i==time_num) {
-      chart.data.datasets[0].backgroundColor[i] = "teal";
-      chart.data.datasets[0].borderColor[i] = "teal";
+      chart.data.datasets[0].backgroundColor[i] = "rgba(0,128,128, 0.4)";
+      chart.data.datasets[0].borderColor[i] = "rgba(0,128,128, 0.4)";
     }
     else {
       chart.data.datasets[0].backgroundColor[i] = DEFAULT_BACKGROUND_COLOR;
@@ -170,7 +169,6 @@ function loadChartBarColor(date_num, time_num) {
   }
   chart.update()
 }
-
 
 function loadTimeLinks(date_num, time_num) {
   files = obj_files[date_num].files
@@ -193,35 +191,114 @@ function loadFileInfo(date_num, time_num) {
   obj_file = obj_files[date_num].files[time_num]
   info_html = "Name: " + obj_file.name + "<br>"
   info_html += "Length: " + obj_file.length + " seconds<br>"
-  // Create some buttons
-  //play_button_html = '<button onClick="playSample('+date_num+','+time_num+')">Play sample</button> '
-  save_button_html = '<button onClick=saveSample("'+obj_file.name+'") id=saveSample>Save sample</button> '
-  //button_html = "<button onClick='deleteSample()'>Delete sample</button> "
-  button_html = "<button>Not sleeptalking</button> "
-  
   document.getElementById('info').innerHTML = info_html
-  document.getElementById('actions').innerHTML =  save_button_html + button_html
-  
+  loadButtons(date_num, time_num)
+  loadLabels(date_num, time_num)
+}
+
+function loadButtons(date_num , time_num) {
+  // Create some buttons
+  document.getElementById("btn-play-all-sample").onclick= function() {playAllSample(date_num, time_num)}
+  document.getElementById("btn-play-sample").onclick= function() {playSample(date_num, time_num)}
+  document.getElementById('btn-download-sample').onclick = function() {downloadSample(date_num, time_num)}
+  document.getElementById('btn-not-sleeptalking').onclick = function() {markNotSleeptalking(date_num, time_num)}
+  document.getElementById('btn-is-sleeptalking').onclick = function() {markIsSleeptalking(date_num, time_num)}
+  document.getElementById('btn-delete-sample').onclick = function() {markDelete(date_num, time_num)}
+}
+
+function loadLabels(date_num, time_num) {
+  obj_file = obj_files[date_num].files[time_num]
+  document.getElementById('label-is-sleeptalking').classList.remove('active')
+  document.getElementById('label-not-sleeptalking').classList.remove('active')
+  document.getElementById('label-is-sleeptalking').onclick = function() {markIsSleeptalking(date_num, time_num)}
+  document.getElementById('label-not-sleeptalking').onclick = function() {markNotSleeptalking(date_num, time_num)}
+  if (obj_file.label=='is-sleeptalking') {
+    document.getElementById('label-is-sleeptalking').classList.add("active")
+  }
+  if (obj_file.label=='not-sleeptalking') {
+    document.getElementById('label-not-sleeptalking').classList.add("active")
+  }
 }
 
 function playSample(date_num, time_num) {
-}
-
-function saveSample(file_name) {
-  // Download file with file_name 
-  path = HOST+'/download/'+file_name
+  file_name = obj_files[date_num].files[time_num].name
+  label = obj_files[date_num].files[time_num].label
+  path = HOST+'/download/'+label+'/'+file_name
   download_request = new XMLHttpRequest();
   download_request.responseType = 'blob';
   download_request.open('GET', path);
   download_request.send();
   download_request.addEventListener('readystatechange', function(e) {
-	if(download_request.readyState == 2 && download_request.status == 200) {
-		// Download is being started
-	}
-	else if(download_request.readyState == 3) {
-		// Download is under progress
-	}
-	else if(download_request.readyState == 4) {
+      if(download_request.readyState == 2 && download_request.status == 200) {
+          // Download is being started
+      }
+      else if(download_request.readyState == 3) {
+          // Download is under progress
+      }
+      else if(download_request.readyState == 4) {
+        url = URL.createObjectURL(download_request.response);
+        setTimeout(function() {
+          window.URL.revokeObjectURL(url);  
+          }, 20
+        ); 
+        var sound = new Howl({
+          src: [url],
+          autoplay: true,
+          loop: false,
+          volume: 1,
+          format: 'wav'
+        });
+        sound.on('end', function(){
+          console.log('Finished playing file '+file_name);
+          document.getElementById('btn-play-sample').classList.remove('active');
+          document.getElementById('btn-play-sample').disabled = false;
+        });
+        Howler.volume(0.5);
+        sound.load()
+        sound.play();
+        document.getElementById('btn-play-sample').disabled = true;
+        document.getElementById('btn-play-sample').classList.add('active')
+        
+      }
+    }
+  )
+}
+
+function playAllSample(date_num) {
+  play_all_button = document.getElementById("btn-play-all-sample");
+  play_all_button.disabled = true;
+  for (i=0; i<obj_files[date_num].files.length;i++) {
+    delay = 0
+    for (j=0; j<i; j++) {
+      delay +=  obj_files[date_num].files[j].length * 1000 + 2000;
+    }
+    setDelay(date_num, i, delay);
+  }
+  setTimeout(function() {
+    play_all_button.disabled = false;
+  }, delay);
+}
+
+function setDelay(date_num, time_num, delay) {
+  setTimeout(function(){
+    loadTimeLinks(date_num, time_num)
+    play_all_button = document.getElementById("btn-play-all-sample");
+    play_all_button.disabled = true;
+    playSample(date_num, time_num)
+  }, delay);
+}
+
+function downloadSample(date_num, time_num) {
+  // Download file with file_name 
+  file_name = obj_files[date_num].files[time_num].name
+  label = obj_files[date_num].files[time_num].label
+  path = HOST+'/download/'+label+'/'+file_name
+  download_request = new XMLHttpRequest();
+  download_request.responseType = 'blob';
+  download_request.open('GET', path);
+  download_request.send();
+  download_request.addEventListener('readystatechange', function(e) {
+	if(download_request.readyState == 4) {
       // Download file immediately
       // https://stackoverflow.com/questions/13405129/javascript-create-and-save-file
       var a = document.createElement("a"),
@@ -239,12 +316,75 @@ function saveSample(file_name) {
   })
 } 
 
+function markNotSleeptalking(date_num, time_num) {
+  // Download file with file_name 
+  file_name = obj_files[date_num].files[time_num].name
+  label = obj_files[date_num].files[time_num].label
+  path = HOST+'/label/not-sleeptalking/'+label+'/'+file_name
+  not_sleeptalking_request = new XMLHttpRequest();
+  not_sleeptalking_request.open('GET', path);
+  not_sleeptalking_request.send();
+  not_sleeptalking_request.addEventListener('readystatechange', function(e) {
+    if(not_sleeptalking_request.readyState == 4) {
+      if (not_sleeptalking_request.status == 200) {
+        obj_files[date_num].files[time_num].label = 'not-sleeptalking'
+        loadButtons(date_num, time_num)
+      }
+      else {
+        alert("not-sleeptalking label unsuccessful")
+      }
+    }
+  }
+  )
+}
 
+function markIsSleeptalking(date_num, time_num) {
+  // Download file with file_name 
+  file_name = obj_files[date_num].files[time_num].name
+  label = obj_files[date_num].files[time_num].label
+  path = HOST+'/label/is-sleeptalking/'+label+'/'+file_name
+  not_sleeptalking_request = new XMLHttpRequest();
+  not_sleeptalking_request.open('GET', path);
+  not_sleeptalking_request.send();
+  not_sleeptalking_request.addEventListener('readystatechange', function(e) {
+    if(not_sleeptalking_request.readyState == 4) {
+      if (not_sleeptalking_request.status == 200) {
+        obj_files[date_num].files[time_num].label = 'is-sleeptalking'
+        loadButtons(date_num, time_num)
+      }
+      else {
+        alert("is-sleeptalking label unsuccessful")
+      }
+    }
+  }
+  )
+}
 
+function markDelete(date_num, time_num) {
+  // Download file with file_name 
+  file_name = obj_files[date_num].files[time_num].name
+  label = obj_files[date_num].files[time_num].label
+  path = HOST+'/delete/'+label+'/'+file_name
+  not_sleeptalking_request = new XMLHttpRequest();
+  not_sleeptalking_request.open('GET', path);
+  not_sleeptalking_request.send();
+  not_sleeptalking_request.addEventListener('readystatechange', function(e) {
+    if(not_sleeptalking_request.readyState == 4) {
+      if (not_sleeptalking_request.status == 200) {
+        loadPage();
+      }
+      else {
+        alert("Delete unsuccessful")
+      }
+    }
+  }
+  )
+}
+
+var ctx = document.getElementById('myChart').getContext('2d');
 var obj_files = [];
 var chart = null;
-var myChart = null;
-loadPage()
+loadPage(0,0)
 
 
 
