@@ -366,12 +366,12 @@ function markDelete(date_num, time_num) {
   label = obj_files[date_num].files[time_num].label
   path = HOST+'/delete/'+label+'/'+file_name
   not_sleeptalking_request = new XMLHttpRequest();
-  not_sleeptalking_request.open('GET', path);
+  not_sleeptalking_request.open('DELETE', path);
   not_sleeptalking_request.send();
   not_sleeptalking_request.addEventListener('readystatechange', function(e) {
     if(not_sleeptalking_request.readyState == 4) {
       if (not_sleeptalking_request.status == 200) {
-        loadPage();
+        loadPage(date_num, time_num);
       }
       else {
         alert("Delete unsuccessful")

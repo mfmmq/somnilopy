@@ -102,6 +102,40 @@
         padding: 4px;
         font-size: 10pt;
       }
+      
+      .btn-outline-label {
+        color: darkseagreen;
+        background-color: transparent;
+        background-image: none;
+        border-color: darkseagreen;
+      }
+
+      .btn-outline-label:hover {
+        color: #fff;
+        background-color: darkseagreen;
+        border-color: darkseagreen;
+      }
+
+      .btn-outline-label:focus, .btn-outline-label.focus {
+        box-shadow: 0 0 0 0.2rem rgba(143,188,139, 0.5);
+      }
+
+      .btn-outline-label.disabled, .btn-outline-label:disabled {
+        color: darkseagreen;
+        background-color: transparent;
+      }
+
+      .btn-outline-label:not(:disabled):not(.disabled):active, .btn-outline-label:not(:disabled):not(.disabled).active,
+      .show > .btn-outline-label.dropdown-toggle {
+        color: #fff;
+        background-color: darkseagreen;
+        border-color: darkseagreen;
+      }
+
+      .btn-outline-label:not(:disabled):not(.disabled):active:focus, .btn-outline-label:not(:disabled):not(.disabled).active:focus,
+      .show > .btn-outline-label.dropdown-toggle:focus {
+        box-shadow: 0 0 0 0.2rem rgba(143,188,139, 0.5);
+
     </style>
   </head>
   <body>    
@@ -147,15 +181,15 @@
           </div>
         </div>
         <div class="row">
-          <div class="col" id="labels">
+          <div class="col" id="labels" style="padding-left: 50px;">
             <button onClick="" class="btn btn-outline-info btn-xs" id="btn-play-all-sample">Play All</button>
             <button onClick="" class="btn btn-outline-info btn-xs" id="btn-play-sample">Play</button>
             <button onClick="" class="btn btn-outline-info btn-xs" id="btn-download-sample">Download</button>
             <div class="btn-group btn-group-toggle btn-xs-select" data-toggle="buttons">
-              <label class="btn btn-outline-info btn-xs-select" id="label-is-sleeptalking">
-                <input type="radio" name="options" id="btn-is-sleeptalking" class="active" autocomplete="off" > Is sleeptalking
+              <label class="btn btn-outline-label btn-xs-select" id="label-is-sleeptalking" >
+                <input type="radio" name="options" id="btn-is-sleeptalking"  autocomplete="off"> Is sleeptalking
               </label>
-              <label class="btn btn-outline-info btn-xs-select" id="label-not-sleeptalking">
+              <label class="btn btn-outline-label btn-xs-select" id="label-not-sleeptalking">
                 <input type="radio" name="options" id="btn-not-sleeptalking" autocomplete="off"> Not sleeptalking
               </label>
             </div>

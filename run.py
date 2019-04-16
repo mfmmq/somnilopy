@@ -103,6 +103,7 @@ if __name__ == "__main__":
             # Move to a not-sleeptalking folder
             current_path = os.path.join(label, name)
             new_path = os.path.join('delete', name)
+            logging.info(f"Moving {current_path} to {new_path}")
             os.rename(current_path, new_path)
             return Response("Successfully deleted file", mimetype='text/html', status=200)
 
