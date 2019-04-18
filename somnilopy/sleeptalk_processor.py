@@ -47,3 +47,5 @@ class SleeptalkProcessor:
                 self.write_to_file(snippet_tuple)
             logging.info(f"Wrote {len(snippets_queue)} to file")
 
+    def listen_to_snippets(self):
+        return None

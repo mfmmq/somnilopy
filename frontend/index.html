@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="../static/format/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/format/bootstrap/css/bootstrap.min.css">
     <title>Somnilopy</title>
     <style>
       @font-face {
@@ -71,7 +71,7 @@
       .navlink.disabled:hover {
       cursor: default;
       }
-      #message {
+      .message {
         font-size: 15pt;
         color: #999999;
       }
@@ -142,7 +142,7 @@
     <div class="jumbotron jumbotron-fluid" style="background-color: white; padding-bottom: 0px">
       <div class="container" style="padding-bottom:20px">
         <div class="row">
-          <div class="col" style="min-width: 100px">
+          <div class="col" style="width: 130px">
             <font style="font-size:20px">Somnilopy</font>
           </div>
           <div class="col-sm-10">
@@ -155,7 +155,14 @@
           </div>
         </div>
       </div>
-      <div class="container" style="min-height: 100px">
+      <div class="container">
+        <div class="row">
+          <div class="col message" style='padding-top: 30px' id="error-message">
+            Could not load sleeptalking data. Is the server running?
+          </div>
+        </div>
+      </div>
+      <div class="container" style="min-height: 100px" id="container-somnilopy">
         <div class="row" style="padding-bottom: 0px">
           <div class="col-sm-1 section name" id="datenav-name"></div>
           <div class="col-sm-11 sec" id="datenav">
@@ -181,7 +188,7 @@
           </div>
         </div>
         <div class="row">
-          <div class="col" id="labels" style="padding-left: 50px;">
+          <div class="col" id="labels" style="padding-left: 20px; display: none; padding-bottom: 10px;" >
             <button onClick="" class="btn btn-outline-info btn-xs" id="btn-play-all-sample">Play All</button>
             <button onClick="" class="btn btn-outline-info btn-xs" id="btn-play-sample">Play</button>
             <button onClick="" class="btn btn-outline-info btn-xs" id="btn-download-sample">Download</button>
@@ -195,10 +202,6 @@
             </div>
             <button onClick="" class="btn btn-outline-secondary btn-xs" id="btn-delete-sample">Delete</button>
 
-          </div>
-        </div>
-        <div class="row" style="padding-bottom: 10px">
-          <div class="col" id="message" class="message">
           </div>
         </div>
       </div>
@@ -220,9 +223,10 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    <script src="../static/format/chart.min.js"></script>
-    <script src="../static/format/howler.js"></script>
-    <script src="../static/sleeptalk.js"></script>
+    <script src="static/moment.js"></script>
+    <script src="static/format/chart.min.js"></script>
+    <script src="static/format/howler.js"></script>
+    <script src="static/sleeptalk.js"></script>
   </body>
   
 </html>

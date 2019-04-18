@@ -4,17 +4,22 @@ var DOWNLOAD_URL = "download";
 var HOST = "http://127.0.0.1:5000";
 
 function loadPage(date_num, time_num) {
+
   var request = new XMLHttpRequest();
   request.open('GET', HOST+'/files');
   request.send();
-  document.getElementById("message").innerHTML = "Could not load sleeptalking data. Is the server running?"
+  document.getElementById('error-message').style.display = 'block'
+  document.getElementById('error-message').innerHTML = "Could not load sleeptalking data from "+HOST+" . <br>Is the server running?"
+  document.getElementById('container-somnilopy').style.display = 'none'
+
   request.onreadystatechange=(e)=>{
     // Do some initialising variables
     // Get data
     obj_files = JSON.parse(request.responseText);
     unique_days = createDays(obj_files);
+    document.getElementById('error-message').style.display = 'none'
+    document.getElementById('container-somnilopy').style.display = 'block'
     // Set fields
-    document.getElementById("message").innerHTML = ""
     document.getElementById("datenav-name").innerHTML = "Date"
     document.getElementById("timenav-name").innerHTML = "Time"
     document.getElementById("info-name").innerHTML = "About"
@@ -23,7 +28,7 @@ function loadPage(date_num, time_num) {
     loadDateLinks(date_num);
     loadTimeLinks(date_num, time_num)
     loadFileInfo(date_num, time_num); 
-    loadButtons(date_num, time_num)
+    loadButtons(date_num, time_num);
   };
 }
 
@@ -102,24 +107,40 @@ function createChartData(day_obj_files) {
   var lengths = [];
   var background_color = [];
   var border_color = [];
+  var my_data = [];
   for (i=0; i<day_obj_files.length; i++) {
     start_times.push(day_obj_files[i].time);
     lengths.push(day_obj_files[i].length);
+    time = moment(day_obj_files[i].time, "HH:mm");    
+//    my_data.push({x: time, y: day_obj_files[i].length})
     background_color.push(DEFAULT_BACKGROUND_COLOR);
     border_color.push(DEFAULT_BORDER_COLOR);
   };
   var chart_data =  {
-        title: "my",
-        labels: start_times,
-        datasets: [
-            {
-            label: 'length',
-            data: lengths,
-            borderWidth: 1,
-            backgroundColor: background_color,
-            borderColor: border_color
-        }]
-    };
+    labels: start_times,
+    datasets: [
+        {
+        label: 'length',
+        data: lengths,
+        borderWidth: 1,
+        backgroundColor: background_color,
+        borderColor: border_color
+    }]
+  };
+
+//  var chart_data1 =  {
+//    labels: start_times,
+//    datasets: [
+//        {
+//        label: 'length',
+//        data: my_data,
+//        borderWidth: 1,
+//        backgroundColor: background_color,
+//        borderColor: border_color
+//    }]
+//  };
+//  console.log(my_data)
+//  
   return chart_data
 }
 
@@ -143,7 +164,6 @@ function loadDateLinks(date_num) {
   }
   link_string = link_string.concat("</i></font>")
   document.getElementById("datenav").innerHTML = link_string;
-  console.log(obj_files, date_num)
   recreateChart(date_num)
   loadTimeLinks(date_num, 0)
 }
@@ -198,6 +218,7 @@ function loadFileInfo(date_num, time_num) {
 
 function loadButtons(date_num , time_num) {
   // Create some buttons
+  document.getElementById("labels").style.display = "block"
   document.getElementById("btn-play-all-sample").onclick= function() {playAllSample(date_num, time_num)}
   document.getElementById("btn-play-sample").onclick= function() {playSample(date_num, time_num)}
   document.getElementById('btn-download-sample').onclick = function() {downloadSample(date_num, time_num)}
@@ -236,29 +257,33 @@ function playSample(date_num, time_num) {
           // Download is under progress
       }
       else if(download_request.readyState == 4) {
-        url = URL.createObjectURL(download_request.response);
-        setTimeout(function() {
-          window.URL.revokeObjectURL(url);  
-          }, 20
-        ); 
-        var sound = new Howl({
-          src: [url],
-          autoplay: true,
-          loop: false,
-          volume: 1,
-          format: 'wav'
-        });
-        sound.on('end', function(){
-          console.log('Finished playing file '+file_name);
-          document.getElementById('btn-play-sample').classList.remove('active');
-          document.getElementById('btn-play-sample').disabled = false;
-        });
-        Howler.volume(0.5);
-        sound.load()
-        sound.play();
-        document.getElementById('btn-play-sample').disabled = true;
-        document.getElementById('btn-play-sample').classList.add('active')
-        
+        if (download_request.status == 200) {
+          url = URL.createObjectURL(download_request.response);
+          setTimeout(function() {
+            window.URL.revokeObjectURL(url);  
+            }, 20
+          ); 
+          var sound = new Howl({
+            src: [url],
+            autoplay: true,
+            loop: false,
+            volume: 1,
+            format: 'wav'
+          });
+          sound.on('end', function(){
+            console.log('Finished playing file '+file_name);
+            document.getElementById('btn-play-sample').classList.remove('active');
+            document.getElementById('btn-play-sample').disabled = false;
+          });
+          Howler.volume(0.5);
+          sound.load()
+          sound.play();
+          document.getElementById('btn-play-sample').disabled = true;
+          document.getElementById('btn-play-sample').classList.add('active')
+        }
+        else {
+          alert("Play request unsuccessful: "+download_request.status)
+        }
       }
     }
   )
@@ -299,19 +324,24 @@ function downloadSample(date_num, time_num) {
   download_request.send();
   download_request.addEventListener('readystatechange', function(e) {
 	if(download_request.readyState == 4) {
-      // Download file immediately
-      // https://stackoverflow.com/questions/13405129/javascript-create-and-save-file
-      var a = document.createElement("a"),
-      url = URL.createObjectURL(download_request.response);
-      a.href = url;
-      a.download = file_name;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(function() {
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);  
-        }, 0
-      ); 
+      if (download_request.status == 200) {
+        // Download file immediately
+        // https://stackoverflow.com/questions/13405129/javascript-create-and-save-file
+        var a = document.createElement("a"),
+        url = URL.createObjectURL(download_request.response);
+        a.href = url;
+        a.download = file_name;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);  
+          }, 0
+        ); 
+      }
+      else {
+        alert("Download request unsuccessful: "+download_request.status)
+      }
     }
   })
 } 
@@ -343,17 +373,17 @@ function markIsSleeptalking(date_num, time_num) {
   file_name = obj_files[date_num].files[time_num].name
   label = obj_files[date_num].files[time_num].label
   path = HOST+'/label/is-sleeptalking/'+label+'/'+file_name
-  not_sleeptalking_request = new XMLHttpRequest();
-  not_sleeptalking_request.open('GET', path);
-  not_sleeptalking_request.send();
-  not_sleeptalking_request.addEventListener('readystatechange', function(e) {
-    if(not_sleeptalking_request.readyState == 4) {
-      if (not_sleeptalking_request.status == 200) {
+  is_sleeptalking_request = new XMLHttpRequest();
+  is_sleeptalking_request.open('GET', path);
+  is_sleeptalking_request.send();
+  is_sleeptalking_request.addEventListener('readystatechange', function(e) {
+    if(is_sleeptalking_request.readyState == 4) {
+      if (is_sleeptalking_request.status == 200) {
         obj_files[date_num].files[time_num].label = 'is-sleeptalking'
         loadButtons(date_num, time_num)
       }
       else {
-        alert("is-sleeptalking label unsuccessful")
+        alert("is-sleeptalking label unsuccessful: "+is_sleeptalking_request.status)
       }
     }
   }
@@ -365,16 +395,18 @@ function markDelete(date_num, time_num) {
   file_name = obj_files[date_num].files[time_num].name
   label = obj_files[date_num].files[time_num].label
   path = HOST+'/delete/'+label+'/'+file_name
-  not_sleeptalking_request = new XMLHttpRequest();
-  not_sleeptalking_request.open('DELETE', path);
-  not_sleeptalking_request.send();
-  not_sleeptalking_request.addEventListener('readystatechange', function(e) {
-    if(not_sleeptalking_request.readyState == 4) {
-      if (not_sleeptalking_request.status == 200) {
-        loadPage(date_num, time_num);
+  delete_request = new XMLHttpRequest();
+  delete_request.open('DELETE', path);
+  delete_request.send();
+  delete_request.addEventListener('readystatechange', function(e) {
+    if(delete_request.readyState == 4) {
+      if (delete_request.status == 200) {
+        obj_files[date_num].files.splice(time_num, 1);
+        recreateChart(date_num)
+        loadTimeLinks(date_num, time_num);
       }
       else {
-        alert("Delete unsuccessful")
+        alert("Delete unsuccessful: "+delete_request.status)
       }
     }
   }

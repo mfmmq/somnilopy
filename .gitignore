@@ -1,13 +1,8 @@
 somnilopy/__pycache__/
 somnilopy/__pycache__/
 .idea/
-autosave/
-not-sleeptalking/*
-is-sleeptalking/*
-delete/*
-!autosave/.gitkeep 
-!not-sleeptalking/.gitkeep 
-!is-sleeptalking/.gitkeep
-!delete/.gitkeep
+
+recordings/*
+!recordings/.gitkeep
 mylog.log
 
