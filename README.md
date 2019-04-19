@@ -10,3 +10,5 @@ somnilopy can be run using
 python run.py --help
 '''
 
+### Requirements
+pyaudio, npm
