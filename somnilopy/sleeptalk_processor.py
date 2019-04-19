@@ -16,13 +16,11 @@ class SleeptalkProcessor:
         self.sample_width = pyaudio.get_sample_size(pyaudio.paInt16)
         self.loop = True
 
-    def process_snippets(self, snippets_queue, stop_event, default_sleep_time=2):
-        sleep_time = default_sleep_time
+    def process_snippets(self, snippets_queue, stop_event, sleep_time=2):
         while self.loop and not stop_event.is_set():
             if len(snippets_queue):
                 snippet_tuple = snippets_queue.pop(0)
                 self.write_to_file(snippet_tuple)
-                sleep_time = default_sleep_time
             else:
                 time.sleep(sleep_time)
         self.stop(snippets_queue)
@@ -46,6 +44,3 @@ class SleeptalkProcessor:
             for snippet_tuple in snippets_queue:
                 self.write_to_file(snippet_tuple)
             logging.info(f"Wrote {len(snippets_queue)} to file")
-
-    def listen_to_snippets(self):
-        return None
