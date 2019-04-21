@@ -1,5 +1,5 @@
 # somnilopy
-A sleeptalking recorder for high quality audio
+### A sound-activated sleep talking recorder
 
 ### About
 
