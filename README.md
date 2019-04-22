@@ -1,5 +1,5 @@
 # somnilopy
-A sleeptalking recorder for high quality audio
+### A sound-activated sleep talking recorder
 
 ### About
 A sleeptalking recorder for high quality audio. It polls for sleeptalking within a schedule and serves a simple, static HTML and JavaScript front-end that allows you to download, stream, delete, and categorise sleeptalking files.

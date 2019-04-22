@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="static/format/bootstrap/css/bootstrap.min.css">
+    <title>Somnilopy</title>
+    <style>
+      @font-face {
+      font-family: "AlteHaasGrotesk";
+      src: url("static/format/font/AlteHaasGrotesk.eot"); /* IE9 Compat Modes */
+      src: url("static/format/font/AlteHaasGrotesk.eot?#iefix") format('embedded-opentype'), /* IE6-IE8 */
+      url('static/format/font/AlteHaasGrotesk.woff') format('woff'), /* Modern Browsers */
+      url('static/format/font/AlteHaasGrotesk.ttf')  format('truetype'), /* Safari, Android, iOS */
+      url('static/format/font/AlteHaasGrotesk.svg#svgFontName') format('svg'); /* Legacy iOS */
+      font-weight: normal;
+      }
+      h1, h2, h3, h4 {
+      font-family: "AlteHaasGrotesk";
+      }
+      #jumbotron {
+      background-color: #ffff
+      }
+      .nav-link{
+      margin-left: 0px;
+      padding-left: 0px;
+      padding-right: 30px;
+      color: #555555;
+      font-size: 10pt;
+      }
+      .nav-link:hover {
+        color: darkblue;
+      }
+      .date-link {
+        color: #aaaaaa;
+        font-size: 10pt;
+        margin-right: 20px;
+      }
+      .date-link:hover {
+        color: darkcyan;
+        text-decoration: underline;
+      }
+      .date-link.active{
+        color: darkolivegreen;
+        text-decoration: underline;
+      }
+      .time-link {
+        color: #777777;
+        font-size: 10pt;
+        margin-right: 20px;
+      }
+      .time-link:hover {
+        color: darkcyan;
+        text-decoration: underline;
+      }
+      .time-link.active {
+        color: darkolivegreen;
+        text-decoration: underline;
+      }
+      .section {
+        font-weight: 450;
+      }
+      .name {
+        min-width: 50px;
+      }
+      .sec {
+        padding-bottom: 5px;
+      }
+      .navlink.disabled:hover {
+      cursor: default;
+      }
+      .message {
+        font-size: 15pt;
+        color: #999999;
+      }
+      a:hover {
+
+      }
+      .active {
+      color: teal;
+      }
+      p {
+      padding-bottom: 10px;
+      }
+      html {
+        overflow: -moz-scrollbars-vertical; 
+        overflow-y: scroll;
+      }
+      body,div, footer {
+        font-size: 13px;
+        background-color: #F4F7F3 !important;
+        color: #333333;
+      }
+      .btn-xs {
+        font-size: 10pt;
+        padding: 4px;
+        margin-right: 3px;
+      }
+      .btn-xs-select {
+        padding: 4px;
+        font-size: 10pt;
+      }
+      
+      .btn-outline-label {
+        color: darkseagreen;
+        background-color: transparent;
+        background-image: none;
+        border-color: darkseagreen;
+      }
+
+      .btn-outline-label:hover {
+        color: #fff;
+        background-color: darkseagreen;
+        border-color: darkseagreen;
+      }
+
+      .btn-outline-label:focus, .btn-outline-label.focus {
+        box-shadow: 0 0 0 0.2rem rgba(143,188,139, 0.5);
+      }
+
+      .btn-outline-label.disabled, .btn-outline-label:disabled {
+        color: darkseagreen;
+        background-color: transparent;
+      }
+
+      .btn-outline-label:not(:disabled):not(.disabled):active, .btn-outline-label:not(:disabled):not(.disabled).active,
+      .show > .btn-outline-label.dropdown-toggle {
+        color: #fff;
+        background-color: darkseagreen;
+        border-color: darkseagreen;
+      }
+
+      .btn-outline-label:not(:disabled):not(.disabled):active:focus, .btn-outline-label:not(:disabled):not(.disabled).active:focus,
+      .show > .btn-outline-label.dropdown-toggle:focus {
+        box-shadow: 0 0 0 0.2rem rgba(143,188,139, 0.5);
+
+    </style>
+  </head>
+  <body>    
+    <div class="jumbotron jumbotron-fluid" style="background-color: white; padding-bottom: 0px">
+      <div class="container" style="padding-bottom:20px">
+        <div class="row">
+          <div class="col" style="width: 130px">
+            <font style="font-size:20px">Somnilopy</font>
+          </div>
+          <div class="col-sm-10">
+            <nav class="nav">
+              <a class="nav-link active" href="index.html">Overview</a>
+              <a class="nav-link disabled"> | </a>
+              <a class="nav-link" href="https://mqiu.io" target="_blank">mqiu.io</a>
+              <a class="nav-link" href="https://github.com/mfmmq/somnilopy" target="_blank">Github</a>
+            </nav>
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="row">
+          <div class="col message" style='padding-top: 30px' id="error-message">
+            Could not load sleeptalking data. Is the server running?
+          </div>
+        </div>
+      </div>
+      <div class="container" style="min-height: 100px" id="container-somnilopy">
+        <div class="row" style="padding-bottom: 0px">
+          <div class="col-sm-1 section name" id="datenav-name"></div>
+          <div class="col-sm-11 sec" id="datenav">
+          </div>
+        </div>        
+        <div class="row">
+          <div class="col-sm-1 section name" id="timenav-name">
+            
+          </div>
+          <div class="col-sm-11 sec" id="timenav">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-1 section name" id="info-name">
+            
+          </div>
+          <div class="col-sm-11 sec" id="info" >
+          </div>
+        </div>        
+        <div class="row" style="padding-bottom: 10px">
+          <div class="col-sm-1 section name"></div>
+          <div class="col-sm-11 sec" id="actions" >
+          </div>
+        </div>
+        <div class="row">
+          <div class="col" id="labels" style="padding-left: 20px; display: none; padding-bottom: 10px;" >
+            <button onClick="" class="btn btn-outline-info btn-xs" id="btn-play-all-sample">Play All</button>
+            <button onClick="" class="btn btn-outline-info btn-xs" id="btn-play-sample">Play</button>
+            <button onClick="" class="btn btn-outline-info btn-xs" id="btn-download-sample">Download</button>
+            <div class="btn-group btn-group-toggle btn-xs-select" data-toggle="buttons">
+              <label class="btn btn-outline-label btn-xs-select" id="label-is-sleeptalking" >
+                <input type="radio" name="options" id="btn-is-sleeptalking"  autocomplete="off"> Is sleeptalking
+              </label>
+              <label class="btn btn-outline-label btn-xs-select" id="label-not-sleeptalking">
+                <input type="radio" name="options" id="btn-not-sleeptalking" autocomplete="off"> Not sleeptalking
+              </label>
+            </div>
+            <button onClick="" class="btn btn-outline-secondary btn-xs" id="btn-delete-sample">Delete</button>
+
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="row" style="padding-bottom: 30px">
+          <div class="col-sm-9">
+            <canvas id="myChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="container">    
+      </div>
+    </div>
+    <footer class="jumbotron jumbotron-fluid" style="background-color: white; margin-top:30px; margin-bottom: 0px;">
+      <div class="container" style="font-size:10px; color: #777777">
+        ------------------------------------------------------------------------<br>
+      </div>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="static/moment.js"></script>
+    <script src="static/format/chart.min.js"></script>
+    <script src="static/format/howler.js"></script>
+    <script src="static/sleeptalk.js"></script>
+  </body>
+  
+</html>
