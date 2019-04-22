@@ -1,6 +1,8 @@
 somnilopy/__pycache__/
 somnilopy/__pycache__/
 .idea/
-autosave/
+
+recordings/*
+!recordings/.gitkeep
 mylog.log
 
