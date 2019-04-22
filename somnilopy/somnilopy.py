@@ -4,24 +4,31 @@ import logging
 from threading import Thread, Event
 from somnilopy.sleeptalk_processor import SleeptalkProcessor
 from somnilopy.sleeptalk_poller import SleeptalkPoller
+from somnilopy.api import run_backend
+
+import sys
 
 
 class Somnilopy:
-    def __init__(self, input_schedule, force_recording, folder, file_name, min_is_sleeptalking_threshold):
+    def __init__(self, input_schedule, force_recording, autosave_dir, file_name_prefix, min_is_sleeptalking_threshold):
         self.snippets_queue = []
-        self.folder = folder
-        self.file_name = file_name
+        self.folder = autosave_dir
+        self.file_name = file_name_prefix
         self.force_recording = force_recording
         self.stop_event = Event()
-
         self.start_time, self.stop_time = input_schedule.split('>')
 
         self.sleeptalk_poller = SleeptalkPoller(self.force_recording, min_is_sleeptalking_threshold=min_is_sleeptalking_threshold)
         self.sleeptalk_processor = SleeptalkProcessor(self.folder, self.file_name)
         self.t_poller = None
         self.t_processor = None
+        self.t_api = Thread(target=run_backend, args=(self.folder, self.start_time, self.stop_time))
+        self.t_api.daemon = True
 
     def run(self):
+        # I think we can get away with threading flask even though it should be on the main thread --
+        # This application is fairly light and it shouldn't serve many requests at all
+        self.t_api.start()
         if self.force_recording:
             logging.info(f"Parameter --force-record is set")
             self.start_listening()
@@ -49,6 +56,8 @@ class Somnilopy:
     def exit(self):
         schedule.clear()
         self.stop_listening()
+        # Just kill process, since we don't need to e.g. free up any resources wrt the api
+        sys.exit(0)
 
     def start_listening(self):
         self.stop_event.clear()
@@ -72,5 +81,7 @@ class Somnilopy:
             self.t_processor.join()
             self.t_processor = None
         logging.info("Stopped Somnilopy")
+
+
 
 

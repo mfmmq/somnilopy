@@ -1,5 +1,6 @@
 import logging
 import argparse
+import os
 from somnilopy.somnilopy import Somnilopy
 
 
@@ -15,13 +16,6 @@ def setup_argparse():
                         dest="force",
                         action="store_true",
                         default=False
-                        )
-    parser.add_argument("--dir",
-                        help="Directory to save audio files in. Defaults to autosave",
-                        dest="dir",
-                        action="store",
-                        default="autosave",
-                        type=str
                         )
     parser.add_argument("--prefix",
                         help="Prefix of audio file names. Defaults to snippet",
@@ -52,5 +46,6 @@ if __name__ == "__main__":
     setup_logging()
 
     snippets_queue = []
-    somnilopy = Somnilopy(args.schedule, args.force, args.dir, args.file_name, args.min_threshold)
+    autosave_dir = os.path.join('recordings', 'autosave')
+    somnilopy = Somnilopy(args.schedule, args.force, autosave_dir, args.file_name, args.min_threshold)
     somnilopy.run()
