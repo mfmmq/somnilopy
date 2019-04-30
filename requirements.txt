@@ -4,6 +4,7 @@ html5lib==0.999
 louis==2.6.4
 lxml==3.5.0
 onboard==1.2.0
+pocketsphinx==0.1.15
 PyAudio==0.2.11
 pycups==1.9.73
 pycurl==7.43.0

@@ -29,7 +29,10 @@ def add_aiff_comment(path, comment):
 		audio.add_tags()
 	audio.tags["COMM"] = COMM(encoding=3, lang=u'eng', desc='desc', text=str(comment))
 	audio.save()
-	logging.info(f"Added '{comment[:20] + '...'}' comment to {path}")
+	if len(comment) > 20:
+		logging.info(f"Added '{comment[:20] + '...'}' comment to {path}")
+	else:
+		logging.info(f"Added '{comment}' comment to {path}")
 
 def get_aiff_comment(path):
 	'''

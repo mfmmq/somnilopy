@@ -6,3 +6,4 @@ recordings/*
 !recordings/.gitkeep
 mylog.log
 test-files
+errors
