@@ -7,3 +7,4 @@ recordings/*
 mylog.log
 test-files
 errors
+.ipynb_checkpoints
