@@ -1,14 +1,10 @@
-apt-xapian-index==0.47
 beautifulsoup4==4.4.1
-Brlapi==0.6.4
 chardet==2.3.0
-command-not-found==0.3
-defer==1.0.6
 html5lib==0.999
-language-selector==0.1
 louis==2.6.4
 lxml==3.5.0
 onboard==1.2.0
+pocketsphinx==0.1.15
 PyAudio==0.2.11
 pycups==1.9.73
 pycurl==7.43.0

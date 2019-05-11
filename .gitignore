@@ -5,4 +5,6 @@ somnilopy/__pycache__/
 recordings/*
 !recordings/.gitkeep
 mylog.log
-
+test-files
+errors
+.ipynb_checkpoints
