@@ -1,8 +1,12 @@
 # somnilopy
 ### A sound-activated sleep talking recorder
 
-### About
+## About
 A sleeptalking recorder for high quality audio. It polls for sleeptalking within a schedule and serves a simple, static HTML and JavaScript front-end that allows you to download, stream, delete, and categorise sleeptalking files.
+
+### Why?
+We created somnilopy 
+Tested on Ubuntu and Mac.
 
 ### Run
 Run the somnilopy backend by cloning the repo and running run.py
@@ -14,4 +18,8 @@ Run the somnilopy frontend by cloning the repo and running, from the frontend wo
 working_dir/frontend $ npm http-server
 ```
 ### Requirements
-pyaudio, npm
+somnilopy requires pyaudio and npm
+
+```
+working_dir/frontend $ npm http-server
+```
