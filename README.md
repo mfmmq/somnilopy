@@ -23,3 +23,8 @@ somnilopy requires pyaudio and npm
 ```
 working_dir/frontend $ npm http-server
 ```
+
+Install python packages using
+```
+working_dir$ pip install -r requirements.txt
+```
