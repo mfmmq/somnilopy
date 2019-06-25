@@ -4,15 +4,6 @@ from flask import Flask, jsonify, Response, send_file, abort
 from flask_cors import CORS
 from flask_restful import Resource
 
-class BackendApi:
-    def __init__(self):
-        self.hello = 0
-        ns = api.namespace('blog/categories', description='Operations related to blog categories')
-
-        class FilesCollection(Resource)
-
-        @api.response(404, 'File not found.')
-        class FilesItem(Resource)
 
 def run_backend(start_time, stop_time, file_handler):
     '''

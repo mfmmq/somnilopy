@@ -244,19 +244,25 @@ function loadLabels(date_num, time_num) {
 function playSample(date_num, time_num) {
   file_name = obj_files[date_num].files[time_num].name
   label = obj_files[date_num].files[time_num].label
-  path = HOST+'/download/'+label+'/'+file_name
+  path = HOST+'/files/'+label+'/'+file_name
+  console.log(path)
   download_request = new XMLHttpRequest();
   download_request.responseType = 'blob';
   download_request.open('GET', path);
   download_request.send();
+  
   download_request.addEventListener('readystatechange', function(e) {
       if(download_request.readyState == 2 && download_request.status == 200) {
           // Download is being started
+        console.log(1)
       }
       else if(download_request.readyState == 3) {
           // Download is under progress
+        console.log(3)
       }
       else if(download_request.readyState == 4) {
+        console.log(4)
+        console.log(download_request.status)
         if (download_request.status == 200) {
           url = URL.createObjectURL(download_request.response);
           setTimeout(function() {
@@ -268,18 +274,21 @@ function playSample(date_num, time_num) {
             autoplay: true,
             loop: false,
             volume: 1,
-            format: 'wav'
+            format: 'flac'
           });
           sound.on('end', function(){
             console.log('Finished playing file '+file_name);
             document.getElementById('btn-play-sample').classList.remove('active');
             document.getElementById('btn-play-sample').disabled = false;
           });
+          console.log(download_request.status)
           Howler.volume(0.5);
-          sound.load()
-          sound.play();
+          sound.load();
           document.getElementById('btn-play-sample').disabled = true;
           document.getElementById('btn-play-sample').classList.add('active')
+          sound.play();
+          console.log(download_request.status)
+
         }
         else {
           alert("Play request unsuccessful: "+download_request.status)
@@ -394,7 +403,7 @@ function markDelete(date_num, time_num) {
   // Download file with file_name 
   file_name = obj_files[date_num].files[time_num].name
   label = obj_files[date_num].files[time_num].label
-  path = HOST+'/delete/'+label+'/'+file_name
+  path = HOST+'/files/'+label+'/'+file_name
   delete_request = new XMLHttpRequest();
   delete_request.open('DELETE', path);
   delete_request.send();
