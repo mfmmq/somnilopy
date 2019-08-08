@@ -5,8 +5,10 @@ import sys
 from threading import Thread, Event
 from somnilopy.sleeptalk_processor import SleeptalkProcessor
 from somnilopy.sleeptalk_poller import SleeptalkPoller
-from somnilopy.api import run_backend
-from somnilopy.file_handler import FileHandler
+from somnilopy.backend import Backend
+from somnilopy.recordings_interface import RecordingsInterface
+
+file_handler = RecordingsInterface()
 
 
 class Somnilopy:
@@ -36,7 +38,7 @@ class Somnilopy:
         '''
         self.snippets_queue = []
         self.stop_event = Event()
-        self.file_handler = FileHandler()
+        self.file_handler = RecordingsInterface()
         self.sleeptalk_poller = SleeptalkPoller(min_is_sleeptalking_threshold=min_is_sleeptalking_threshold)
         self.sleeptalk_processor = SleeptalkProcessor(self.file_handler)
 
@@ -44,7 +46,7 @@ class Somnilopy:
                                args=(self.snippets_queue, self.stop_event))
         self.t_processor = Thread(target=self.sleeptalk_processor.process_snippets,
                                   args=(self.snippets_queue, self.stop_event))
-        self.t_api = Thread(target=run_backend, args=(self.start_time, self.stop_time, self.file_handler))
+        self.t_api = Thread(target=Backend().run)
         self.t_api.daemon = True  # This is so the api process is killed when the main process is killed
 
     def run(self):
@@ -78,6 +80,10 @@ class Somnilopy:
             except KeyboardInterrupt:
                 self.exit()
 
+    class Scheduler:
+        def run(self):
+            return None
+
     def exit(self):
         schedule.clear()
         self.stop_listening()
@@ -110,5 +116,4 @@ class Somnilopy:
 
         logging.info("Stopped Somnilopy")
         sys.exit(0)
-        return True
 

@@ -45,7 +45,8 @@ if __name__ == "__main__":
     args = setup_argparse()
     setup_logging()
 
+
     snippets_queue = []
     autosave_dir = os.path.join('recordings', 'autosave')
-    somnilopy = Somnilopy(args.schedule, args.force, autosave_dir, args.file_name, args.min_threshold)
+    somnilopy = Somnilopy(args.schedule, args.force, args.min_threshold)
     somnilopy.run()

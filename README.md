@@ -9,6 +9,7 @@ Frontend:
 Install requirements with:
 ```
 sudo apt-get install npm
+sudo npm install http-server -g
 ```
 Run the somnilopy frontend by cloning the repo and running, from the frontend working directory
 ```

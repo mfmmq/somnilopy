@@ -3,7 +3,7 @@ import logging
 from mutagen.flac import FLAC
 
 
-class FileHandler:
+class RecordingsInterface:
     def __init__(self, folder='recordings', file_name_prefix='autosave'):
         self.file_prefix = file_name_prefix
         self.folder = folder
@@ -15,7 +15,34 @@ class FileHandler:
         return path
 
     @classmethod
-    def update_comment(cls, path, comment):
+    def update_comment(cls, audio, comment):
+        '''
+        Takes path to an FLACC file and comment string and adds Vorbis comment string
+        '''
+        audio["Comment"] = comment
+        audio.save()
+        if len(comment) > 20:
+            logging.debug(f"Added '{comment[:20] + '...'} comment' ")
+        else:
+            logging.debug(f"Added '{comment}' comment")
+        return True
+
+    @classmethod
+    def update_comment_from_label(cls, label, name, comment):
+        '''
+        Takes path to an FLACC file and comment string and adds Vorbis comment string
+        '''
+        path = cls.get_file_path_from_label(label, name)
+        try:
+            audio = FLAC(path)
+        except FileNotFoundError as e:
+            logging.error(e)
+            return False
+        cls.update_comment(audio, comment)
+        return True
+
+    @classmethod
+    def update_comment_from_path(cls, path, comment):
         '''
         Takes path to an FLACC file and comment string and adds Vorbis comment string
         '''
@@ -24,23 +51,19 @@ class FileHandler:
         except FileNotFoundError as e:
             logging.error(e)
             return False
-        audio["Comment"] = comment
-        audio.save()
-        if len(comment) > 20:
-            logging.debug(f"Added '{comment[:20] + '...'}' comment to {path}")
-        else:
-            logging.debug(f"Added '{comment}' comment to {path}")
+        cls.update_comment(audio, comment)
         return True
 
-    @staticmethod
-    def get_comment(path):
+    @classmethod
+    def get_comment(cls, label, name):
         '''
         Reads comment of FLAC file
         '''
+        path = cls.get_file_path_from_label(label, name)
         audio = FLAC(path)
         return audio["Comment"][0]
 
-    def apply_label(self, new_label, old_label, name):
+    def apply_label(self, label, name, new_label):
         '''
         Move a file from one folder to another. This acts as a pseudo persistent label without having to
         modify comments or metadata. Having all the 'sleeptalking' and 'not sleeptalking' files in their
@@ -52,14 +75,11 @@ class FileHandler:
         '''
         # Make sure we have that file, else send a 404
         try:
-            old_label = os.path.join(self.folder, old_label)
-            new_label = os.path.join(self.folder, new_label)
             # Move to label named folder
-            current_path = os.path.join(old_label, name)
-            new_path = os.path.join(new_label, name)
+            current_path = os.path.join(self.folder, label, name)
+            new_path = os.path.join(self.folder, new_label, name)
             os.rename(current_path, new_path)
-            logging.info(current_path)
-            logging.info(new_path)
+            logging.debug(f'Moved file from {current_path} to {new_path}')
             return "Successfully moved file", 200
         except FileNotFoundError:
             # Send a 404 reponse back
@@ -92,10 +112,10 @@ class FileHandler:
                 f = FLAC(path)
                 length = f.info.length
                 return [{"date": date,
-                              "time": time,
-                              "length": round(length, 2),
-                              "name": name,
-                              "label": label}]
+                          "time": time,
+                          "length": round(length, 2),
+                          "name": name,
+                          "label": label}]
         except ValueError:
             return []
 

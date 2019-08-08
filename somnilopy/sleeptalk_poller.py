@@ -4,10 +4,7 @@ import time
 from datetime import datetime
 from array import array
 
-STREAM_CHUNK = 5000
-STREAM_AUDIO_FORMAT = pyaudio.paInt16
-STREAM_CHANNELS = 1
-STREAM_RATE = 44100
+from somnilopy import settings
 
 
 class SleeptalkPoller:
@@ -22,12 +19,12 @@ class SleeptalkPoller:
     def _setup_stream(self):
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(
-            format=STREAM_AUDIO_FORMAT,
-            channels=STREAM_CHANNELS,
-            rate=STREAM_RATE,
+            format=settings.STREAM_AUDIO_FORMAT,
+            channels=settings.STREAM_CHANNELS,
+            rate=settings.STREAM_RATE,
             input=True,
             output=True,
-            frames_per_buffer=STREAM_CHUNK
+            frames_per_buffer=settings.STREAM_CHUNK
         )
 
     def listen_for_snippets(self, snippets_queue, stop_event):
@@ -37,7 +34,7 @@ class SleeptalkPoller:
 
         # add a buffer to the start of the snippet
         while self.duration(snippet) < self.prewindow:
-            data_chunk = array('h', self.stream.read(STREAM_CHUNK))
+            data_chunk = array('h', self.stream.read(settings.STREAM_CHUNK))
             snippet.extend(data_chunk)
 
         self.reset_silence() # start silence timer
@@ -51,22 +48,22 @@ class SleeptalkPoller:
                 # Move the snippet to another queue to be processed so we don't delay the recording thread
                 # This is done in anticipation some audio processing has potential to take a while
                 snippets_queue.append((snippet, datetime.now()))
-                logging.info(f"Added snippet of sleeptalking length {len(snippet)/STREAM_RATE:.2f} seconds")
+                logging.info(f"Added snippet of sleeptalking length {len(snippet)/settings.STREAM_RATE:.2f} seconds")
                 snippet = array('h')
                 # add a buffer to the start of the snippet
                 while self.duration(snippet) < self.prewindow:
-                    data_chunk = array('h', self.stream.read(STREAM_CHUNK))
+                    data_chunk = array('h', self.stream.read(settings.STREAM_CHUNK))
                     snippet.extend(data_chunk)
                 self.reset_silence()
             # extend snippet
-            data_chunk = array('h', self.stream.read(STREAM_CHUNK))
+            data_chunk = array('h', self.stream.read(settings.STREAM_CHUNK))
             snippet.extend(data_chunk)
 
         self.stop()
 
     @staticmethod
     def duration(array):
-        return len(array) / STREAM_RATE
+        return len(array) / settings.STREAM_RATE
 
     def is_sleeptalking_noise(self, night_noise):
         # If the data_chunk is loud enough to be sleeptalking, return True

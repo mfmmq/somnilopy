@@ -5,15 +5,15 @@ import pyaudio
 import speech_recognition as sr
 from soundfile import write as sf_write
 
+from somnilopy import settings
 
 class SleeptalkProcessor:
     def __init__(self, file_handler, to_text=True):
         self.file_handler = file_handler
-        self.sample_width = pyaudio.get_sample_size(pyaudio.paInt16)
+        self.sample_width = pyaudio.get_sample_size(settings.STREAM_AUDIO_FORMAT)
         self.loop = True
         self.to_text = to_text
-        if self.to_text:
-            self.recognizer = sr.Recognizer()
+        self.recognizer = sr.Recognizer()
 
     def process_snippets(self, snippets_queue, stop_event, sleep_time=2):
         while self.loop and not stop_event.is_set():
@@ -23,7 +23,7 @@ class SleeptalkProcessor:
                 if self.to_text:
                     text = self.speech2text(file_path)
                     if text:
-                        self.file_handler.update_comment(file_path, text)
+                        self.file_handler.update_comment_from_path(file_path, text)
                     else:
                         logging.debug(f"No speech detected for file at {file_path}")
             else:
@@ -35,8 +35,6 @@ class SleeptalkProcessor:
         Takes a path to an audio file and a recognizer object 
         --> Applies speech recognition, returns result as string if speech is recognised, None if not
         '''
-        if not self.recognizer:
-            self.recognizer = sr.Recognizer()
         try:
             file = sr.AudioFile(file_path)
         except AssertionError:
@@ -52,8 +50,8 @@ class SleeptalkProcessor:
     def save_snippet(self, snippet_tuple):
         snippet, timestamp = snippet_tuple
         file_name = f"{self.file_handler.file_prefix}_{timestamp.strftime('%m-%d_%H-%M-%S')}.flac"
-        file_path = os.path.join(self.file_handler.folder, file_name)
-        sf_write(file_path, snippet, 44100)
+        file_path = os.path.join(self.file_handler.folder, 'autosave', file_name)
+        sf_write(file_path, snippet, settings.STREAM_RATE)
         logging.info(f"Saved snippet at {file_path}")
         return file_path   
 
