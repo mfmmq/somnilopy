@@ -2,7 +2,7 @@ import pyaudio
 
 
 # Flask settings
-FLASK_SERVER_NAME = '192.168.0.18:5000'
+FLASK_SERVER_NAME = 'localhost:5000'
 FLASK_DEBUG = False  # Do not use debug mode in production
 
 # Flask-Restplus settings
