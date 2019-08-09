@@ -1,13 +1,17 @@
 import os
 import logging
 from mutagen.flac import FLAC
-
+from . import settings
 
 class RecordingsInterface:
     def __init__(self, folder='recordings', file_name_prefix='autosave'):
         self.file_prefix = file_name_prefix
         self.folder = folder
         self.label = None
+        for label in settings.LABELS:
+            dir = os.path.join(settings.PREFIX_DIR, label)
+            if not os.path.exists(dir):
+                os.makedirs(dir)
 
     def get_file_path_from_label(self, label, name):
         path = os.path.join('..', self.folder, label, name)
@@ -87,15 +91,10 @@ class RecordingsInterface:
 
     @staticmethod
     def get_all_sorted_file_paths():
-        prefix_dir = 'recordings'
-        autosave_dir = os.path.join(prefix_dir, 'autosave')
-        is_sleeptalking_dir = os.path.join(prefix_dir, 'is-sleeptalking')
-        not_sleeptalking_dir = os.path.join(prefix_dir, 'not-sleeptalking')
-        all_file_paths = [os.path.join(autosave_dir, file_name) for file_name in os.listdir(autosave_dir)]
-        all_file_paths.extend(
-            [os.path.join(is_sleeptalking_dir, file_name) for file_name in os.listdir(is_sleeptalking_dir)])
-        all_file_paths.extend(
-            [os.path.join(not_sleeptalking_dir, file_name) for file_name in os.listdir(not_sleeptalking_dir)])
+        all_file_paths = []
+        for label in settings.LABELS:
+            dir = os.path.join(settings.PREFIX_DIR, label)
+            all_file_paths.extend([os.path.join(dir, file_name) for file_name in os.listdir(dir)])
         logging.debug(f'Got {len(all_file_paths)} file paths')
         all_file_paths.sort(key=lambda x: os.path.getmtime(x))
         return all_file_paths

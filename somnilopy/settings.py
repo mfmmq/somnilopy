@@ -19,3 +19,4 @@ STREAM_RATE = 44100
 
 # Somnilopy settings
 LABELS = ['is-sleeptalking', 'not-sleeptalking', 'autosave', 'delete']
+PREFIX_DIR = 'recordings'
