@@ -12,6 +12,7 @@ from somnilopy import settings
 class Backend:
     def __init__(self):
         self.app = Flask(__name__)
+        CORS(self.app)
         self.configure_app()
         self.initialize_app()
 
