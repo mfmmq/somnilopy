@@ -19,16 +19,17 @@ class FilesCollection(Resource):
         file_info = []
         for file_path in file_paths:
             file_info.extend(file_handler.get_file_info_by_path(file_path))
+        logging.debug(file_info)
         # Create a list of info grouped by date ie file: [..] date: 04-09
-        # files_by_date = []
-        # for file in file_info:
-        #     if file['date'] not in [date_group['date'] for date_group in files_by_date]:
-        #         files_by_date.append({'date': file['date'], 'files': []})
-        #     for date_group in files_by_date:
-        #         if file['date'] == date_group['date']:
-        #             date_group['files'].append(file)
-        # logging.info(f"Got file dates: {[date_group['date'] for date_group in files_by_date]}")
-        return jsonify(file_info)
+        files_by_date = []
+        for file in file_info:
+            if file['date'] not in [date_group['date'] for date_group in files_by_date]:
+                files_by_date.append({'date': file['date'], 'files': []})
+            for date_group in files_by_date:
+                if file['date'] == date_group['date']:
+                    date_group['files'].append(file)
+        logging.info(f"Got file dates: {[date_group['date'] for date_group in files_by_date]}")
+        return jsonify(files_by_date)
 
 
 @files_ns.route('/<label>')

@@ -1,7 +1,7 @@
 var DEFAULT_BACKGROUND_COLOR = "rgba(190, 190, 190, 0.3)";
 var DEFAULT_BORDER_COLOR = "rgb(120, 120, 120, 0.5)";
 var DOWNLOAD_URL = "download";
-var HOST = "http://192.168.0.18:8080/api";
+var HOST = "http://localhost:5000/api";
 
 function loadPage(date_num, time_num) {
 
