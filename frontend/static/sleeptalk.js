@@ -16,20 +16,26 @@ function loadPage(date_num, time_num) {
     // Do some initialising variables
     // Get data
     obj_files = JSON.parse(request.responseText);
-    unique_days = createDays(obj_files);
-    document.getElementById('error-message').style.display = 'none'
-    document.getElementById('container-somnilopy').style.display = 'block'
-    // Set fields
-    document.getElementById("datenav-name").innerHTML = "Date"
-    document.getElementById("timenav-name").innerHTML = "Time"
-    document.getElementById("info-name").innerHTML = "About"
+    if (obj_fies) {
+      unique_days = createDays(obj_files);
+      document.getElementById('error-message').style.display = 'none'
+      document.getElementById('container-somnilopy').style.display = 'block'
+      // Set fields
+      document.getElementById("datenav-name").innerHTML = "Date"
+      document.getElementById("timenav-name").innerHTML = "Time"
+      document.getElementById("info-name").innerHTML = "About"
 
-    // Load page
-    loadDateLinks(date_num);
-    loadTimeLinks(date_num, time_num)
-    loadFileInfo(date_num, time_num); 
-    loadButtons(date_num, time_num);
-  };
+      // Load page
+      loadDateLinks(date_num);
+      loadTimeLinks(date_num, time_num)
+      loadFileInfo(date_num, time_num); 
+      loadButtons(date_num, time_num);
+    };
+    else {
+      document.getElementById('error-message').style.display = 'block'
+      documents.getElementById('error-message').innerHTML = 'No audio files found! '
+    }
+  }
 }
 
 function selectBar(evt, date_num) {
