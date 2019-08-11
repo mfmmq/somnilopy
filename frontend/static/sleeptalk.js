@@ -251,7 +251,7 @@ function loadLabels(date_num, time_num) {
 function playSample(date_num, time_num) {
   file_name = obj_files[date_num].files[time_num].name
   label = obj_files[date_num].files[time_num].label
-  path = HOST+'/files/'+label+'/'+file_name
+  path = HOST+'/files/'+label+'/'+file_name + '/download'
   console.log(path)
   download_request = new XMLHttpRequest();
   download_request.responseType = 'blob';
@@ -333,7 +333,7 @@ function downloadSample(date_num, time_num) {
   // Download file with file_name 
   file_name = obj_files[date_num].files[time_num].name
   label = obj_files[date_num].files[time_num].label
-  path = HOST+'/download/'+label+'/'+file_name
+  path = HOST+label+'/'+file_name + '/download
   download_request = new XMLHttpRequest();
   download_request.responseType = 'blob';
   download_request.open('GET', path);
