@@ -261,15 +261,11 @@ function playSample(date_num, time_num) {
   download_request.addEventListener('readystatechange', function(e) {
       if(download_request.readyState == 2 && download_request.status == 200) {
           // Download is being started
-        console.log(1)
       }
       else if(download_request.readyState == 3) {
           // Download is under progress
-        console.log(3)
       }
       else if(download_request.readyState == 4) {
-        console.log(4)
-        console.log(download_request.status)
         if (download_request.status == 200) {
           url = URL.createObjectURL(download_request.response);
           setTimeout(function() {
@@ -288,13 +284,11 @@ function playSample(date_num, time_num) {
             document.getElementById('btn-play-sample').classList.remove('active');
             document.getElementById('btn-play-sample').disabled = false;
           });
-          console.log(download_request.status)
           Howler.volume(0.5);
           sound.load();
           document.getElementById('btn-play-sample').disabled = true;
           document.getElementById('btn-play-sample').classList.add('active')
           sound.play();
-          console.log(download_request.status)
 
         }
         else {
@@ -333,7 +327,7 @@ function downloadSample(date_num, time_num) {
   // Download file with file_name 
   file_name = obj_files[date_num].files[time_num].name
   label = obj_files[date_num].files[time_num].label
-  path = HOST+label+'/'+file_name + '/download'
+  path = HOST+'/'+label+'/'+file_name + '/download'
   download_request = new XMLHttpRequest();
   download_request.responseType = 'blob';
   download_request.open('GET', path);
