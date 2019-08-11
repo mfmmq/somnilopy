@@ -1,6 +1,7 @@
 import logging
+import mutagen
 from flask import Response, jsonify, request, send_file, abort, Flask
-from flask_restplus import Api, Resource
+from flask_restplus import Api, Resource, fields
 from somnilopy.recordings_interface import RecordingsInterface
 from somnilopy.api.restplus import api
 
@@ -30,17 +31,6 @@ class FilesCollection(Resource):
                     date_group['files'].append(file)
         logging.info(f"Got file dates: {[date_group['date'] for date_group in files_by_date]}")
         return jsonify(files_by_date)
-
-
-@files_ns.route('/<label>')
-class LabelCollection(Resource):
-    def get(self, label):
-        '''
-        Get information for all audio files falling under a label
-        :param label:
-        :return:
-        '''
-        return None
 
 
 @files_ns.route('/<label>/<name>')
@@ -81,6 +71,7 @@ class Label(Resource):
         text, status = file_handler.apply_label(label, name, new_label)
         return Response(text, mimetype='text/html', status=status)
 
+file_comment_model = files_ns.model("file_comment", {"comment": fields.String(description="New file comment", required=True)})
 
 @files_ns.route('/<label>/<name>/comment')
 class FilesItemComment(Resource):
@@ -93,6 +84,7 @@ class FilesItemComment(Resource):
         '''
         return file_handler.get_comment(label, name)
 
+    @files_ns.expect(file_comment_model)
     def put(self, label, name):
         '''
         Update the comment of a file
@@ -100,10 +92,10 @@ class FilesItemComment(Resource):
         :param name:
         :return:
         '''
-        if request.headers['Content-Type'] == 'text/plain':
-            file_handler.update_comment_from_label(label, name, request.data)
-        else:
-            return "415 Unsupported Media Type"
+        try:
+            file_handler.update_comment_from_label(label, name, request.json['comment'])
+        except mutagen.MutagenError:
+            return Response('No such file or directory', status=404)
         return Response('Successfully added comment', mimetype='text/html', status=200)
 
 

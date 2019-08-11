@@ -3,6 +3,7 @@ import logging
 from mutagen.flac import FLAC
 from . import settings
 
+
 class RecordingsInterface:
     def __init__(self, folder='recordings', file_name_prefix='autosave'):
         self.file_prefix = file_name_prefix
@@ -14,8 +15,7 @@ class RecordingsInterface:
                 os.makedirs(dir)
 
     def get_file_path_from_label(self, label, name):
-        path = os.path.join('..', self.folder, label, name)
-        logging.info(f'From label {label} and {name} got path {path}')
+        path = os.path.join(self.folder, label, name)
         return path
 
     @classmethod
@@ -31,22 +31,20 @@ class RecordingsInterface:
             logging.debug(f"Added '{comment}' comment")
         return True
 
-    @classmethod
-    def update_comment_from_label(cls, label, name, comment):
+    def update_comment_from_label(self, label, name, comment):
         '''
         Takes path to an FLACC file and comment string and adds Vorbis comment string
         '''
-        path = cls.get_file_path_from_label(label, name)
+        path = self.get_file_path_from_label(label, name)
         try:
             audio = FLAC(path)
         except FileNotFoundError as e:
             logging.error(e)
             return False
-        cls.update_comment(audio, comment)
+        self.update_comment(audio, comment)
         return True
 
-    @classmethod
-    def update_comment_from_path(cls, path, comment):
+    def update_comment_from_path(self, path, comment):
         '''
         Takes path to an FLACC file and comment string and adds Vorbis comment string
         '''
@@ -55,17 +53,19 @@ class RecordingsInterface:
         except FileNotFoundError as e:
             logging.error(e)
             return False
-        cls.update_comment(audio, comment)
+        self.update_comment(audio, comment)
         return True
 
-    @classmethod
-    def get_comment(cls, label, name):
+    def get_comment(self, label, name):
         '''
         Reads comment of FLAC file
         '''
-        path = cls.get_file_path_from_label(label, name)
+        path = self.get_file_path_from_label(label, name)
         audio = FLAC(path)
-        return audio["Comment"][0]
+        try:
+            return audio["Comment"][0]
+        except KeyError:
+            return '(null)'
 
     def apply_label(self, label, name, new_label):
         '''
@@ -99,22 +99,23 @@ class RecordingsInterface:
         all_file_paths.sort(key=lambda x: os.path.getmtime(x))
         return all_file_paths
 
-    @staticmethod
-    def get_file_info_by_path(path):
+    def get_file_info_by_path(self, path):
         try:
             date, time = path.split("_")[1:3]
             time = time.replace(".flac", "")
             time = time.replace("-", ":")[0:5]
             label, name = os.path.split(path)
             label = os.path.split(label)[1]
+            comment = self.get_comment(label, name)
             if path.endswith(".flac"):
                 f = FLAC(path)
                 length = f.info.length
                 return [{"date": date,
-                          "time": time,
-                          "length": round(length, 2),
-                          "name": name,
-                          "label": label}]
+                         "time": time,
+                         "length": round(length, 2),
+                         "name": name,
+                         "label": label,
+                         "comment": comment}]
         except ValueError:
             return []
 

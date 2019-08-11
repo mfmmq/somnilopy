@@ -218,6 +218,7 @@ function loadFileInfo(date_num, time_num) {
   obj_file = obj_files[date_num].files[time_num]
   info_html = "Name: " + obj_file.name + "<br>"
   info_html += "Length: " + obj_file.length + " seconds<br>"
+  info_html += "Speech: " + obj_file.comment + " <br>"
   document.getElementById('info').innerHTML = info_html
   loadButtons(date_num, time_num)
   loadLabels(date_num, time_num)
