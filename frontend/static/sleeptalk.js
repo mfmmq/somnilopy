@@ -16,7 +16,8 @@ function loadPage(date_num, time_num) {
     // Do some initialising variables
     // Get data
     obj_files = JSON.parse(request.responseText);
-    if (obj_fies) {
+    console.log(obj_files)
+    if (obj_files.length > 0) {
       unique_days = createDays(obj_files);
       document.getElementById('error-message').style.display = 'none'
       document.getElementById('container-somnilopy').style.display = 'block'
@@ -30,10 +31,10 @@ function loadPage(date_num, time_num) {
       loadTimeLinks(date_num, time_num)
       loadFileInfo(date_num, time_num); 
       loadButtons(date_num, time_num);
-    };
+    }
     else {
       document.getElementById('error-message').style.display = 'block'
-      documents.getElementById('error-message').innerHTML = 'No audio files found! '
+      document.getElementById('error-message').innerHTML = 'No audio files found! '
     }
   }
 }
