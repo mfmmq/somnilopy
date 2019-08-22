@@ -1,7 +1,7 @@
 var DEFAULT_BACKGROUND_COLOR = "rgba(190, 190, 190, 0.3)";
 var DEFAULT_BORDER_COLOR = "rgb(120, 120, 120, 0.5)";
 var DOWNLOAD_URL = "download";
-var HOST = "http://192.168.0.18:5000/api";
+var HOST = "http://127.0.0.1:5000/api";
 
 function loadPage(date_num, time_num) {
 
@@ -328,7 +328,7 @@ function downloadSample(date_num, time_num) {
   // Download file with file_name 
   file_name = obj_files[date_num].files[time_num].name
   label = obj_files[date_num].files[time_num].label
-  path = HOST+'/'+label+'/'+file_name + '/download'
+  path = HOST+'/files/'+label+'/'+file_name + '/download'
   download_request = new XMLHttpRequest();
   download_request.responseType = 'blob';
   download_request.open('GET', path);
@@ -357,71 +357,39 @@ function downloadSample(date_num, time_num) {
   })
 } 
 
-function markNotSleeptalking(date_num, time_num) {
-  // Download file with file_name 
+function applyLabel(date_num, time_num, label, action) {
+    // Download file with file_name 
   file_name = obj_files[date_num].files[time_num].name
-  label = obj_files[date_num].files[time_num].label
-  path = HOST+'/label/not-sleeptalking/'+label+'/'+file_name
-  not_sleeptalking_request = new XMLHttpRequest();
-  not_sleeptalking_request.open('GET', path);
-  not_sleeptalking_request.send();
-  not_sleeptalking_request.addEventListener('readystatechange', function(e) {
-    if(not_sleeptalking_request.readyState == 4) {
-      if (not_sleeptalking_request.status == 200) {
-        obj_files[date_num].files[time_num].label = 'not-sleeptalking'
+  old_label = obj_files[date_num].files[time_num].label
+  path = HOST+'/files/'+old_label+'/'+file_name + '/label/' + label
+  request = new XMLHttpRequest();
+  request.open(action, path);
+  request.send(JSON.stringify({"label": label}));
+  request.addEventListener('readystatechange', function(e) {
+    if(request.readyState == 4) {
+      if (request.status == 200) {
+        obj_files[date_num].files[time_num].label = label
         loadButtons(date_num, time_num)
       }
       else {
-        alert("not-sleeptalking label unsuccessful")
+        alert(label+" label unsuccessful: "+request.status)
       }
     }
   }
   )
 }
 
+function markNotSleeptalking(date_num, time_num) {
+  applyLabel(date_num, time_num, 'not-sleeptalking', 'PUT')
+}
+
+
 function markIsSleeptalking(date_num, time_num) {
-  // Download file with file_name 
-  file_name = obj_files[date_num].files[time_num].name
-  label = obj_files[date_num].files[time_num].label
-  path = HOST+'/label/is-sleeptalking/'+label+'/'+file_name
-  is_sleeptalking_request = new XMLHttpRequest();
-  is_sleeptalking_request.open('GET', path);
-  is_sleeptalking_request.send();
-  is_sleeptalking_request.addEventListener('readystatechange', function(e) {
-    if(is_sleeptalking_request.readyState == 4) {
-      if (is_sleeptalking_request.status == 200) {
-        obj_files[date_num].files[time_num].label = 'is-sleeptalking'
-        loadButtons(date_num, time_num)
-      }
-      else {
-        alert("is-sleeptalking label unsuccessful: "+is_sleeptalking_request.status)
-      }
-    }
-  }
-  )
+  applyLabel(date_num, time_num, 'is-sleeptalking', 'PUT')
 }
 
 function markDelete(date_num, time_num) {
-  // Download file with file_name 
-  file_name = obj_files[date_num].files[time_num].name
-  label = obj_files[date_num].files[time_num].label
-  path = HOST+'/files/'+label+'/'+file_name
-  delete_request = new XMLHttpRequest();
-  delete_request.open('DELETE', path);
-  delete_request.send();
-  delete_request.addEventListener('readystatechange', function(e) {
-    if(delete_request.readyState == 4) {
-      if (delete_request.status == 200) {
-        obj_files[date_num].files.splice(time_num, 1);
-        recreateChart(date_num)
-        loadTimeLinks(date_num, time_num);
-      }
-      else {
-        alert("Delete unsuccessful: "+delete_request.status)
-      }
-    }
-  }
-  )
+  applyLabel(date_num, time_num, 'delete', 'DELETE')
 }
 
 var ctx = document.getElementById('myChart').getContext('2d');

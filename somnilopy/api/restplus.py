@@ -4,7 +4,7 @@ from flask_restplus import Api
 from somnilopy import settings
 
 
-api = Api(version='1.0', title='somnilopy API', description='somnilopy Flask API endpoint')
+api = Api(version='1.0', title='somnilopy API', description='somnilopy Flask API endpoint', validate=True)
 
 
 @api.errorhandler

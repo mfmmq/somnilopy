@@ -9,6 +9,15 @@ file_handler = RecordingsInterface()
 files_ns = api.namespace('files', description='Operations related to sleeptalking audio files')
 
 
+def extract_time(json):
+    try:
+        # Also convert to int since update_time will be string.  When comparing
+        # strings, "10" is smaller than "2".
+        return json['date']
+    except KeyError:
+        return 0
+
+
 @files_ns.route('/')
 class FilesCollection(Resource):
     def get(self):
@@ -29,8 +38,13 @@ class FilesCollection(Resource):
             for date_group in files_by_date:
                 if file['date'] == date_group['date']:
                     date_group['files'].append(file)
+        files_by_date.sort(key=extract_time, reverse=True)
         logging.info(f"Got file dates: {[date_group['date'] for date_group in files_by_date]}")
         return jsonify(files_by_date)
+
+
+file_info_model = files_ns.model("file_info", {"label": fields.String(description="New file label", required=False),
+                                               "comment": fields.String(description="File metadata comment", required=False)})
 
 
 @files_ns.route('/<label>/<name>')
@@ -54,7 +68,30 @@ class FilesItem(Resource):
         :param name:
         :return:
         '''
-        return None
+        info = file_handler.get_file_info_by_label(label, name)
+        if info:
+            return info
+        else:
+            return Response(status=404)
+
+   # @files_ns.expect(file_info_model, validate=False)
+    @api.response(403, 'Label not allowed')
+    def put(self, label, name):
+        '''
+        Update the info of a file
+        :param label:
+        :param name:
+        :return:
+        '''
+        content = request.json
+        if 'label' in content:
+            new_label = content['label']
+            logging.info(f'Updating label of {name} with {new_label}')
+            text, status = file_handler.apply_label(label, name, new_label)
+        if 'comment' in content:
+            new_comment = content['comment']
+            text, status = file_handler.update_comment_from_label(label, name, new_comment)
+        return Response(text, mimetype='text/html', status=status)
 
 
 @files_ns.route('/<label>/<name>/label/<new_label>')
@@ -67,36 +104,13 @@ class Label(Resource):
         :param new_label:
         :return:
         '''
-        # Make sure we have that file, else send a 404
-        text, status = file_handler.apply_label(label, name, new_label)
-        return Response(text, mimetype='text/html', status=status)
-
-file_comment_model = files_ns.model("file_comment", {"comment": fields.String(description="New file comment", required=True)})
-
-@files_ns.route('/<label>/<name>/comment')
-class FilesItemComment(Resource):
-    def get(self, label, name):
-        '''
-        Get the current comment of a file
-        :param label:
-        :param name:
-        :return comment string stored in the file metadata:
-        '''
-        return file_handler.get_comment(label, name)
-
-    @files_ns.expect(file_comment_model)
-    def put(self, label, name):
-        '''
-        Update the comment of a file
-        :param label:
-        :param name:
-        :return:
-        '''
         try:
-            file_handler.update_comment_from_label(label, name, request.json['comment'])
-        except mutagen.MutagenError:
+            # Make sure we have that file, else send a 404
+            text, status = file_handler.apply_label(label, name, new_label)
+            return Response(text, mimetype='text/html', status=status)
+        except mutagen.MutagenError as e:
+            logging.error(e)
             return Response('No such file or directory', status=404)
-        return Response('Successfully added comment', mimetype='text/html', status=200)
 
 
 @files_ns.route('/<label>/<name>/download')
@@ -108,7 +122,8 @@ class FilesDownloadItem(Resource):
         :param name:
         :return:
         '''
-        path = file_handler.get_file_path_from_label(label, name)
+        path = '../' + file_handler.get_file_path_from_label(label, name)
+        logging.info(path)
         try:
             return send_file(
                 path,

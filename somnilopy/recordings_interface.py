@@ -99,7 +99,13 @@ class RecordingsInterface:
         all_file_paths.sort(key=lambda x: os.path.getmtime(x))
         return all_file_paths
 
+    def get_file_info_by_label(self, label, name):
+        path = self.get_file_path_from_label(label, name)
+        return self.get_file_info_by_path(path)
+
     def get_file_info_by_path(self, path):
+        if not os.path.isfile(path):
+            return None
         try:
             date, time = path.split("_")[1:3]
             time = time.replace(".flac", "")
