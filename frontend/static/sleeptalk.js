@@ -394,7 +394,7 @@ function markDelete(date_num, time_num) {
   old_label = obj_files[date_num].files[time_num].label
   path = HOST+'/files/'+old_label+'/'+file_name
   request = new XMLHttpRequest();
-  request.open(action, path);
+  request.open(path);
   request.addEventListener('readystatechange', function(e) {
     if(request.readyState == 4) {
       if (request.status == 200) {
