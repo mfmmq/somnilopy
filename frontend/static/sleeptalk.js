@@ -389,8 +389,24 @@ function markIsSleeptalking(date_num, time_num) {
 }
 
 function markDelete(date_num, time_num) {
-  applyLabel(date_num, time_num, 'delete', 'DELETE')
-}
+    // Download file with file_name 
+  file_name = obj_files[date_num].files[time_num].name
+  old_label = obj_files[date_num].files[time_num].label
+  path = HOST+'/files/'+old_label+'/'+file_name
+  request = new XMLHttpRequest();
+  request.open(action, path);
+  request.addEventListener('readystatechange', function(e) {
+    if(request.readyState == 4) {
+      if (request.status == 200) {
+        obj_files[date_num].files[time_num].label = label
+        loadButtons(date_num, time_num)
+      }
+      else {
+        alert("delete unsuccessful: "+request.status)
+      }
+    }
+  }
+  )}
 
 var ctx = document.getElementById('myChart').getContext('2d');
 var obj_files = [];
