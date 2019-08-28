@@ -1,8 +1,6 @@
 import logging
-from datetime import datetime
-from flask import Flask, jsonify, Response, send_file, abort, Blueprint
+from flask import Flask, Blueprint
 from flask_cors import CORS
-from flask_restful import Resource
 from somnilopy.api.endpoints.files import files_ns
 from somnilopy.api.endpoints.recording import recording_ns
 from somnilopy.api.restplus import api
@@ -10,9 +8,10 @@ from somnilopy import settings
 
 
 class Backend:
-    def __init__(self):
+    def __init__(self, recorder):
         self.app = Flask(__name__)
         CORS(self.app)
+        self.app.recorder = recorder
         self.configure_app()
         self.initialize_app()
 

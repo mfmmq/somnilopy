@@ -1,8 +1,8 @@
 import logging
 import argparse
 import os
-from somnilopy.somnilopy import Somnilopy
-
+from somnilopy.recorder import Recorder
+from somnilopy.backend import Backend
 
 def setup_argparse():
     parser = argparse.ArgumentParser(description="Record sleeptalking")
@@ -48,5 +48,7 @@ if __name__ == "__main__":
 
     snippets_queue = []
     autosave_dir = os.path.join('recordings', 'autosave')
-    somnilopy = Somnilopy(args.schedule, args.force, args.min_threshold)
-    somnilopy.run()
+    recorder = Recorder(args.schedule, args.force, args.min_threshold)
+    recorder.run()
+    backend = Backend(recorder)
+    backend.app.run()

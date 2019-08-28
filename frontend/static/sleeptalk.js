@@ -22,9 +22,13 @@ function loadPage(date_num, time_num) {
       document.getElementById('error-message').style.display = 'none'
       document.getElementById('container-somnilopy').style.display = 'block'
       // Set fields
-      document.getElementById("datenav-name").innerHTML = "Date"
-      document.getElementById("timenav-name").innerHTML = "Time"
-      document.getElementById("info-name").innerHTML = "About"
+      document.getElementById("row-datenav").style.display='block'
+      document.getElementById("row-timenav").style.display='block'
+      document.getElementById("row-about-name").style.display='block'
+      document.getElementById("row-about-length").style.display='block'
+      document.getElementById("row-about-speech").style.display='block'
+      document.getElementById("recording-icon-off").onclick = function() {toggleRecording}
+      document.getElementById("recording-icon-on").onclick = function() {toggleRecording}
 
       // Load page
       loadDateLinks(date_num);
@@ -216,10 +220,11 @@ function loadTimeLinks(date_num, time_num) {
 function loadFileInfo(date_num, time_num) {
   // Write a little blurb
   obj_file = obj_files[date_num].files[time_num]
-  info_html = "Name: " + obj_file.name + "<br>"
-  info_html += "Length: " + obj_file.length + " seconds<br>"
-  info_html += "Speech: " + obj_file.comment + " <br>"
-  document.getElementById('info').innerHTML = info_html
+  document.getElementById("about-content-name").innerHTML = obj_file.name
+  document.getElementById("about-content-length").innerHTML = obj_file.length + " seconds"
+  document.getElementById("about-input-speech").placeholder = obj_file.comment
+  document.getElementById("about-input-speech").value = obj_file.comment
+  document.getElementById("about-button-speech").onclick = function() {updateComment(date_num, time_num)}
   loadButtons(date_num, time_num)
   loadLabels(date_num, time_num)
 }
@@ -252,7 +257,7 @@ function loadLabels(date_num, time_num) {
 function playSample(date_num, time_num) {
   file_name = obj_files[date_num].files[time_num].name
   label = obj_files[date_num].files[time_num].label
-  path = HOST+'/files/'+label+'/'+file_name + '/download'
+  path = HOST+'/files/' + file_name + '/download'
   console.log(path)
   download_request = new XMLHttpRequest();
   download_request.responseType = 'blob';
@@ -328,7 +333,7 @@ function downloadSample(date_num, time_num) {
   // Download file with file_name 
   file_name = obj_files[date_num].files[time_num].name
   label = obj_files[date_num].files[time_num].label
-  path = HOST+'/files/'+label+'/'+file_name + '/download'
+  path = HOST+'/files/'+file_name + '/download'
   download_request = new XMLHttpRequest();
   download_request.responseType = 'blob';
   download_request.open('GET', path);
@@ -358,24 +363,24 @@ function downloadSample(date_num, time_num) {
 } 
 
 function applyLabel(date_num, time_num, label, action) {
-    // Download file with file_name 
   file_name = obj_files[date_num].files[time_num].name
-  old_label = obj_files[date_num].files[time_num].label
-  path = HOST+'/files/'+old_label+'/'+file_name + '/label/' + label
+  path = HOST+'/files/'+file_name 
+  var mimeType = "application/json"
   request = new XMLHttpRequest();
   request.open(action, path);
+  request.setRequestHeader('Content-type', mimeType);  
   request.send(JSON.stringify({"label": label}));
   request.addEventListener('readystatechange', function(e) {
-    if(request.readyState == 4) {
-      if (request.status == 200) {
-        obj_files[date_num].files[time_num].label = label
-        loadButtons(date_num, time_num)
-      }
-      else {
-        alert(label+" label unsuccessful: "+request.status)
+      if(request.readyState == 4) {
+        if (request.status == 200) {
+          obj_files[date_num].files[time_num].label = label
+          loadButtons(date_num, time_num)
+        }
+        else {
+          alert(label+" label unsuccessful: "+request.status + " " + request.message)
+        }
       }
     }
-  }
   )
 }
 
@@ -392,7 +397,7 @@ function markDelete(date_num, time_num) {
     // Download file with file_name 
   file_name = obj_files[date_num].files[time_num].name
   old_label = obj_files[date_num].files[time_num].label
-  path = HOST+'/files/'+old_label+'/'+file_name
+  path = HOST+'/files/'+file_name
   request = new XMLHttpRequest();
   request.open('DELETE', path);
   request.addEventListener('readystatechange', function(e) {
@@ -402,16 +407,94 @@ function markDelete(date_num, time_num) {
         loadButtons(date_num, time_num)
       }
       else {
-        alert("delete unsuccessful: "+request.status)
+        alert("delete unsuccessful: "+request.status + " "+request.message)
       }
     }
   }
   )}
 
+function updateComment(date_num, time_num) {
+  new_comment = document.getElementById('about-input-speech').value
+  file_name = obj_files[date_num].files[time_num].name
+  path = HOST+'/files/'+file_name 
+  var mimeType = "application/json"
+  request = new XMLHttpRequest();
+  request.open('PUT', path);
+  request.setRequestHeader('Content-type', mimeType);  
+  request.send(JSON.stringify({"comment": new_comment}));
+  request.addEventListener('readystatechange', function(e) {
+      if(request.readyState == 4) {
+        if (request.status == 200) {
+          document.getElementById('about-input-speech-help').innerHTML = 'Updated comment to "'+new_comment +'"'
+          obj_files[date_num].files[time_num].comment = new_comment
+          loadButtons(date_num, time_num)
+        }
+        else {
+          alert(label+" comment unsuccessful: "+request.status + " " + request.message)
+        }
+      }
+    }
+  )
+}
+
+function checkRecording() {
+  path = HOST+'/recording/status'
+  var mimeType = "application/json"
+  request = new XMLHttpRequest();
+  request.open('GET', path);
+  request.setRequestHeader('Content-type', mimeType);  
+  request.send();
+  request.addEventListener('readystatechange', function(e) {
+      if(request.readyState == 4) {
+        console.log('Checking recording status, got request status ' + request.status + ' and message ' + request.responseText )
+        if (request.status == 200) {
+          if (request.responseText == "true\n") {
+            document.getElementById('recording-icon-on').style.display = 'block'
+            document.getElementById('recording-icon-off').style.display = 'none'
+          }
+          else {
+            document.getElementById('recording-icon-on').style.display = 'none'
+            document.getElementById('recording-icon-off').style.display = 'block'          
+          }
+        }
+      }
+    }
+  )
+}
+
+function toggleRecording() {
+  if (document.getElementById('recording-icon').class = 'fa fa-microphone-slash') {
+    controlRecording('start')
+  }
+  else {
+    controlRecording('stop')
+  }
+  checkRecording()
+}
+
+function controlRecording(controlType) {
+  path = HOST+'/recording/' + controlType
+  var mimeType = "application/json"
+  request = new XMLHttpRequest();
+  request.open('POST', path);
+  request.setRequestHeader('Content-type', mimeType);  
+  request.send();
+  request.addEventListener('readystatechange', function(e) {
+      if(request.readyState == 4) {
+        return request.status
+      }
+    }
+  )
+}
+
+
+
 var ctx = document.getElementById('myChart').getContext('2d');
 var obj_files = [];
 var chart = null;
+checkRecording()
 loadPage(0,0)
+var intervalID = setInterval(checkRecording, 5000);
 
 
 

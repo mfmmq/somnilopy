@@ -5,6 +5,7 @@ from flask_restplus import Api, Resource, fields
 from somnilopy.recordings_interface import RecordingsInterface
 from somnilopy.api.restplus import api
 
+
 file_handler = RecordingsInterface()
 files_ns = api.namespace('files', description='Operations related to sleeptalking audio files')
 
@@ -20,6 +21,7 @@ def extract_time(json):
 
 @files_ns.route('/')
 class FilesCollection(Resource):
+    @api.response(200, 'Successfully got information for all audio files')
     def get(self):
         '''
         Get information for all audio files
@@ -43,14 +45,15 @@ class FilesCollection(Resource):
         return jsonify(files_by_date)
 
 
-file_info_model = files_ns.model("file_info", {"label": fields.String(description="New file label", required=False),
-                                               "comment": fields.String(description="File metadata comment", required=False)})
+file_info_model = files_ns.model("info", {"label": fields.String(description="New file label", required=False),
+                                          "comment": fields.String(description="New file comment", required=False)})
 
 
-@files_ns.route('/<label>/<name>')
+@files_ns.route('/<name>')
 @api.response(404, 'File not found.')
 class FilesItem(Resource):
-    def delete(self, label, name):
+    @api.response(200, 'Successfully marked file for deletion')
+    def delete(self, name):
         '''
         Mark an audio file for deletion
         :param label:
@@ -58,25 +61,26 @@ class FilesItem(Resource):
         :return:
         '''
         # Make sure we have that file, else send a 404
-        text, status = file_handler.delete(label, name)
+        text, status = file_handler.delete(name)
         return Response(text, mimetype='text/html', status=status)
 
-    def get(self, label, name):
+    @api.response(200, 'Succesfully got file metadata')
+    def get(self, name):
         '''
         Get information on an audio file
         :param label:
         :param name:
         :return:
         '''
-        info = file_handler.get_file_info_by_label(label, name)
+        info = file_handler.get_file_info_by_name(name)
         if info:
             return info
         else:
             return Response(status=404)
 
-   # @files_ns.expect(file_info_model, validate=False)
-    @api.response(403, 'Label not allowed')
-    def put(self, label, name):
+    @files_ns.expect(file_info_model, validate=False)
+    @api.response(200, 'Successfully updated file metadata')
+    def put(self, name):
         '''
         Update the info of a file
         :param label:
@@ -87,42 +91,24 @@ class FilesItem(Resource):
         if 'label' in content:
             new_label = content['label']
             logging.info(f'Updating label of {name} with {new_label}')
-            text, status = file_handler.apply_label(label, name, new_label)
+            file_handler.apply_label(name, new_label)
         if 'comment' in content:
             new_comment = content['comment']
-            text, status = file_handler.update_comment_from_label(label, name, new_comment)
-        return Response(text, mimetype='text/html', status=status)
+            logging.info(f'Updating comment of {name} with {new_comment}')
+            file_handler.update_comment_from_name(name, new_comment)
+        return Response('Successfully updated file metadata', status=200)
 
-
-@files_ns.route('/<label>/<name>/label/<new_label>')
-class Label(Resource):
-    def put(self, label, name, new_label):
-        '''
-        Update the label of a file
-        :param label:
-        :param name:
-        :param new_label:
-        :return:
-        '''
-        try:
-            # Make sure we have that file, else send a 404
-            text, status = file_handler.apply_label(label, name, new_label)
-            return Response(text, mimetype='text/html', status=status)
-        except mutagen.MutagenError as e:
-            logging.error(e)
-            return Response('No such file or directory', status=404)
-
-
-@files_ns.route('/<label>/<name>/download')
+@files_ns.route('/<name>/download')
 class FilesDownloadItem(Resource):
-    def get(self, label, name):
+    @api.response(200, 'Successfully got file')
+    def get(self, name):
         '''
         Endpoint to download any sleeptalking file. Use the label to get the folder its located in
         :param label:
         :param name:
         :return:
         '''
-        path = '../' + file_handler.get_file_path_from_label(label, name)
+        path = '../' + file_handler.get_file_path_from_name(name)
         logging.info(path)
         try:
             return send_file(
@@ -132,4 +118,3 @@ class FilesDownloadItem(Resource):
                 attachment_filename=name)
         except:
             abort(500, 'Error getting file')
-

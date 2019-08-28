@@ -11,7 +11,7 @@ from somnilopy.recordings_interface import RecordingsInterface
 file_handler = RecordingsInterface()
 
 
-class Somnilopy:
+class Recorder:
     def __init__(self, input_schedule, force_recording, min_is_sleeptalking_threshold):
         '''
         Class for setting up and running the processor, poller, and api backend
@@ -39,25 +39,20 @@ class Somnilopy:
         self.snippets_queue = []
         self.stop_event = Event()
         self.file_handler = RecordingsInterface()
-        self.sleeptalk_poller = SleeptalkPoller(min_is_sleeptalking_threshold=min_is_sleeptalking_threshold)
-        self.sleeptalk_processor = SleeptalkProcessor(self.file_handler)
-
-        self.t_poller = Thread(target=self.sleeptalk_poller.listen_for_snippets,
-                               args=(self.snippets_queue, self.stop_event))
-        self.t_processor = Thread(target=self.sleeptalk_processor.process_snippets,
-                                  args=(self.snippets_queue, self.stop_event))
-        self.t_api = Thread(target=Backend().run)
-        self.t_api.daemon = True  # This is so the api process is killed when the main process is killed
+        self.sleeptalk_poller = SleeptalkPoller(min_is_sleeptalking_threshold=min_is_sleeptalking_threshold,
+                                                snippets_queue=self.snippets_queue, stop_event=self.stop_event)
+        self.sleeptalk_processor = SleeptalkProcessor(self.file_handler, snippets_queue=self.snippets_queue,
+                                                      stop_event=self.stop_event)
+        self.poller = self.sleeptalk_poller
+        self.poller_thread = None
+        self.processor_thread = None
+        self.scheduler_thread = None
 
     def run(self):
-        '''
-        Function that
-        :return:
-        '''
+        self.t = Thread(target=self.run_schedule)
+        self.t.start()
 
-        # I think we can get away with threading flask even though it should be on the main thread --
-        # This application is fairly light and it shouldn't serve many requests at all
-        self.t_api.start()
+    def run_schedule(self):
         if self.force_recording:
             logging.info(f"Parameter --force-record is set")
             self.start_listening()
@@ -80,14 +75,9 @@ class Somnilopy:
             except KeyboardInterrupt:
                 self.exit()
 
-    class Scheduler:
-        def run(self):
-            return None
-
     def exit(self):
         schedule.clear()
         self.stop_listening()
-        # Just kill process, since we don't need to e.g. free up any resources wrt the api
         sys.exit(0)
 
     def start_listening(self):
@@ -95,10 +85,17 @@ class Somnilopy:
 
         :return:
         '''
-        self.stop_event.clear()
-        self.t_poller.start()
-        self.t_processor.start()
-        logging.info("Started Somnilopy")
+        if self.poller_thread and self.poller_thread.is_alive():
+            logging.warning(f'Tried to start listenning, but somnilopy is already recording')
+            return None
+        else:
+            self.stop_event.clear()
+            self.poller_thread = Thread(target=self.sleeptalk_poller.poll)
+            self.processor_thread = Thread(target=self.sleeptalk_processor.process_snippets)
+            self.poller_thread.start()
+            self.processor_thread.start()
+            logging.info("Started Somnilopy")
+            return True
 
     def stop_listening(self):
         '''
@@ -107,13 +104,9 @@ class Somnilopy:
         :return:
         '''
         self.stop_event.set()
-        try:
-            self.t_poller.join()
-            self.t_processor.join()
-        except Exception as e:
-            logging.error(f"Tried to stop somnilopy, but hit exception {e}")
-            return False
-
-        logging.info("Stopped Somnilopy")
-        sys.exit(0)
+        if not self.poller_thread or not self.poller_thread.is_alive():
+            return None
+        self.poller_thread.join()
+        self.processor_thread.join()
+        return True
 

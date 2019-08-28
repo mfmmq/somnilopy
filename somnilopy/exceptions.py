@@ -1,0 +1,2 @@
+class LabelNotAllowedError(Exception):
+    pass
