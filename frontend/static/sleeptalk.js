@@ -27,8 +27,7 @@ function loadPage(date_num, time_num) {
       document.getElementById("row-about-name").style.display='block'
       document.getElementById("row-about-length").style.display='block'
       document.getElementById("row-about-speech").style.display='block'
-      document.getElementById("recording-icon-off").onclick = function() {toggleRecording}
-      document.getElementById("recording-icon-on").onclick = function() {toggleRecording}
+      document.getElementById("recording-toggle-link").onclick = function() {toggleRecording()}
 
       // Load page
       loadDateLinks(date_num);
@@ -449,10 +448,12 @@ function checkRecording() {
         console.log('Checking recording status, got request status ' + request.status + ' and message ' + request.responseText )
         if (request.status == 200) {
           if (request.responseText == "true\n") {
+            console.log('Still recording')
             document.getElementById('recording-icon-on').style.display = 'block'
             document.getElementById('recording-icon-off').style.display = 'none'
           }
           else {
+            console.log('Not recording')
             document.getElementById('recording-icon-on').style.display = 'none'
             document.getElementById('recording-icon-off').style.display = 'block'          
           }
@@ -463,18 +464,23 @@ function checkRecording() {
 }
 
 function toggleRecording() {
-  if (document.getElementById('recording-icon').class = 'fa fa-microphone-slash') {
-    controlRecording('start')
+  console.log(document.getElementById('recording-icon-on').style.display)
+  if (document.getElementById('recording-icon-on').style.display == 'block') {
+    controlRecording('stop')
+    document.getElementById('recording-icon-on').style.display = 'none'
+    document.getElementById('recording-icon-off').style.display = 'block'
   }
   else {
-    controlRecording('stop')
+    controlRecording('start')
+    document.getElementById('recording-icon-off').style.display = 'none'
+    document.getElementById('recording-icon-on').style.display = 'block'
   }
-  checkRecording()
 }
 
 function controlRecording(controlType) {
   path = HOST+'/recording/' + controlType
   var mimeType = "application/json"
+  console.log('Actioning control '+controlType)
   request = new XMLHttpRequest();
   request.open('POST', path);
   request.setRequestHeader('Content-type', mimeType);  
@@ -494,7 +500,7 @@ var obj_files = [];
 var chart = null;
 checkRecording()
 loadPage(0,0)
-var intervalID = setInterval(checkRecording, 5000);
+var intervalID = setInterval(checkRecording, 10000);
 
 
 

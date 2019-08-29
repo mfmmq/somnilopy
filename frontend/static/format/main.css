@@ -1,0 +1,162 @@
+      @font-face {
+      font-family: "AlteHaasGrotesk";
+      src: url("static/format/font/AlteHaasGrotesk.eot"); /* IE9 Compat Modes */
+      src: url("static/format/font/AlteHaasGrotesk.eot?#iefix") format('embedded-opentype'), /* IE6-IE8 */
+      url('static/format/font/AlteHaasGrotesk.woff') format('woff'), /* Modern Browsers */
+      url('static/format/font/AlteHaasGrotesk.ttf')  format('truetype'), /* Safari, Android, iOS */
+      url('static/format/font/AlteHaasGrotesk.svg#svgFontName') format('svg'); /* Legacy iOS */
+      font-weight: normal;
+      }
+      h1, h2, h3, h4 {
+      font-family: "AlteHaasGrotesk";
+      }
+      #jumbotron {
+      background-color: #ffff
+      }
+      .nav-link{
+      margin-left: 0px;
+      padding-left: 0px;
+      padding-right: 30px;
+      color: #555555;
+      font-size: 10pt;
+      }
+      .nav-link:hover {
+        color: darkblue;
+      }
+      .date-link {
+        color: #aaaaaa;
+        font-size: 10pt;
+        margin-right: 20px;
+      }
+      .date-link:hover {
+        color: darkcyan;
+        text-decoration: underline;
+      }
+      .date-link.active{
+        color: darkolivegreen;
+        text-decoration: underline;
+      }
+      .time-link {
+        color: #777777;
+        font-size: 10pt;
+        margin-right: 20px;
+      }
+      .time-link:hover {
+        color: darkcyan;
+        text-decoration: underline;
+      }
+      .time-link.active {
+        color: darkolivegreen;
+        text-decoration: underline;
+      }
+      .section {
+        font-weight: 450;
+      }
+      .name {
+        min-width: 50px;
+      }
+      .sec {
+        padding-bottom: 5px;
+      }
+      .navlink.disabled:hover {
+      cursor: default;
+      }
+      .message {
+        font-size: 15pt;
+        color: #999999;
+      }
+      a:hover {
+
+      }
+      .active {
+      color: teal;
+      }
+      p {
+      padding-bottom: 10px;
+      }
+      html {
+        overflow: -moz-scrollbars-vertical; 
+        overflow-y: scroll;
+      }
+      body,div, footer {
+        font-size: 13px;
+        background-color: #F4F7F3 !important;
+        color: #333333;
+      }
+      .btn-xs {
+        font-size: 10pt;
+        padding: 4px;
+        margin-right: 3px;
+      }
+      .btn-xs-select {
+        padding: 4px;
+        font-size: 10pt;
+      }
+      
+      .btn-outline-label {
+        color: darkseagreen;
+        background-color: transparent;
+        background-image: none;
+        border-color: darkseagreen;
+      }
+
+      .btn-outline-label:hover {
+        color: #fff;
+        background-color: darkseagreen;
+        border-color: darkseagreen;
+      }
+
+      .btn-outline-label:focus, .btn-outline-label.focus {
+        box-shadow: 0 0 0 0.2rem rgba(143,188,139, 0.5);
+      }
+
+      .btn-outline-label.disabled, .btn-outline-label:disabled {
+        color: darkseagreen;
+        background-color: transparent;
+      }
+
+      .btn-outline-label:not(:disabled):not(.disabled):active, .btn-outline-label:not(:disabled):not(.disabled).active,
+      .show > .btn-outline-label.dropdown-toggle {
+        color: #fff;
+        background-color: darkseagreen;
+        border-color: darkseagreen;
+      }
+
+      .btn-outline-label:not(:disabled):not(.disabled):active:focus, .btn-outline-label:not(:disabled):not(.disabled).active:focus,
+      .show > .btn-outline-label.dropdown-toggle:focus {
+        box-shadow: 0 0 0 0.2rem rgba(143,188,139, 0.5);
+      }
+      
+      .somnilopy-form {
+        background-color: #F4F7F3; 
+        font-family: AlteHaasGrotesk; 
+        font-size: 13px; 
+      }
+      .somnilopy-input {
+        margin-top: 0px;
+        height: 25px; 
+      }
+      .somnilopy-inline-button {
+        height: 25px;
+        margin-top 1px;
+        padding-top: 2px;
+        font-size: 13px
+      }
+      .recording-status:active {color: #ffffff}
+      .recording-status:hover {
+        color: #000000;
+        cursor: pointer;
+      }
+      .recording-icon {
+        font-size: 20pt;
+        padding-top: 10px;
+      }
+      .on {
+        color: darkseagreen
+      }
+      .recording-icon-pending {
+        color: floralwhite
+      }
+      .off {
+        color: lightgray
+      }

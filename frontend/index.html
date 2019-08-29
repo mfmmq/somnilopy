@@ -7,6 +7,7 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="static/format/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="static/format/main.css">
     <title>Somnilopy</title>
     <style>
       @font-face {
@@ -18,145 +19,6 @@
       url('static/format/font/AlteHaasGrotesk.svg#svgFontName') format('svg'); /* Legacy iOS */
       font-weight: normal;
       }
-      h1, h2, h3, h4 {
-      font-family: "AlteHaasGrotesk";
-      }
-      #jumbotron {
-      background-color: #ffff
-      }
-      .nav-link{
-      margin-left: 0px;
-      padding-left: 0px;
-      padding-right: 30px;
-      color: #555555;
-      font-size: 10pt;
-      }
-      .nav-link:hover {
-        color: darkblue;
-      }
-      .date-link {
-        color: #aaaaaa;
-        font-size: 10pt;
-        margin-right: 20px;
-      }
-      .date-link:hover {
-        color: darkcyan;
-        text-decoration: underline;
-      }
-      .date-link.active{
-        color: darkolivegreen;
-        text-decoration: underline;
-      }
-      .time-link {
-        color: #777777;
-        font-size: 10pt;
-        margin-right: 20px;
-      }
-      .time-link:hover {
-        color: darkcyan;
-        text-decoration: underline;
-      }
-      .time-link.active {
-        color: darkolivegreen;
-        text-decoration: underline;
-      }
-      .section {
-        font-weight: 450;
-      }
-      .name {
-        min-width: 50px;
-      }
-      .sec {
-        padding-bottom: 5px;
-      }
-      .navlink.disabled:hover {
-      cursor: default;
-      }
-      .message {
-        font-size: 15pt;
-        color: #999999;
-      }
-      a:hover {
-
-      }
-      .active {
-      color: teal;
-      }
-      p {
-      padding-bottom: 10px;
-      }
-      html {
-        overflow: -moz-scrollbars-vertical; 
-        overflow-y: scroll;
-      }
-      body,div, footer {
-        font-size: 13px;
-        background-color: #F4F7F3 !important;
-        color: #333333;
-      }
-      .btn-xs {
-        font-size: 10pt;
-        padding: 4px;
-        margin-right: 3px;
-      }
-      .btn-xs-select {
-        padding: 4px;
-        font-size: 10pt;
-      }
-      
-      .btn-outline-label {
-        color: darkseagreen;
-        background-color: transparent;
-        background-image: none;
-        border-color: darkseagreen;
-      }
-
-      .btn-outline-label:hover {
-        color: #fff;
-        background-color: darkseagreen;
-        border-color: darkseagreen;
-      }
-
-      .btn-outline-label:focus, .btn-outline-label.focus {
-        box-shadow: 0 0 0 0.2rem rgba(143,188,139, 0.5);
-      }
-
-      .btn-outline-label.disabled, .btn-outline-label:disabled {
-        color: darkseagreen;
-        background-color: transparent;
-      }
-
-      .btn-outline-label:not(:disabled):not(.disabled):active, .btn-outline-label:not(:disabled):not(.disabled).active,
-      .show > .btn-outline-label.dropdown-toggle {
-        color: #fff;
-        background-color: darkseagreen;
-        border-color: darkseagreen;
-      }
-
-      .btn-outline-label:not(:disabled):not(.disabled):active:focus, .btn-outline-label:not(:disabled):not(.disabled).active:focus,
-      .show > .btn-outline-label.dropdown-toggle:focus {
-        box-shadow: 0 0 0 0.2rem rgba(143,188,139, 0.5);
-      }
-      
-      .somnilopy-form {
-        background-color: #F4F7F3; 
-        font-family: AlteHaasGrotesk; 
-        font-size: 13px; 
-      }
-      .somnilopy-input {
-        margin-top: 0px;
-        height: 25px; 
-      }
-      .somnilopy-inline-button {
-        height: 25px;
-        margin-top 1px;
-        padding-top: 2px;
-        font-size: 13px
-      }
-      .form-group-somnilopy {
-        margin: 5px;
-      }
-
     </style>
   </head>
   <body>    
@@ -166,7 +28,11 @@
           <div class="col-sm-10" style="width: 130px">
             <font style="font-size:20px">Somnilopy</font>
           </div>
-          <div class="col-sm-1" id='recording-status'><i id='recording-icon-off' class="fa fa-microphone-slash color-off" style="font-size:20px; padding-top: 10px; display: none"></i><i id='recording-icon-on' class="fa fa-microphone color-on" style="font-size:20px; padding-top: 10px; display: none"></i>
+          <div class="col-sm-1 recording-status" id='recording-status'>
+            <a class="recording-status" id='recording-toggle-link'>
+              <i id='recording-icon-off' class="fa fa-microphone-slash recording-icon off" style="display: block;"></i>
+              <i id='recording-icon-on' class="fa fa-microphone recording-icon on" style="display: none;"></i>
+            </a>
           </div>
         </div>
         <div class="row">
@@ -211,14 +77,21 @@
         </div>
         <div class="row" style="display: none;" id='row-about-speech'>
           <div class="col-sm-1 section name" id="about-title-speech" style="min-width: 60px;">Speech</div>
-          <div class="col-sm-8 sec" id="about-content-speech">
-            <input type="Speech" class="form-control somnilopy-form somnilopy-input" id="about-input-speech" placeholder="Speech">
-            <small class="form-text text-muted" style='height: 10px' id='about-input-speech-help'> </small>
+              <form class = "form-inline" role = "form">
+                <div class='form-group col-sm-6' style='margin-right: -15px'> 
+                  <input type="Speech" class="form-control somnilopy-form somnilopy-input" id="about-input-speech" placeholder="Speech" style='width: 100%'>
+                  <small class="form-text text-muted" style='height: 16px;' id='about-input-speech-help'> </small>
+                  
+                </div>
+                <div class='form-group col-sm-1'>
+                  <button type="submit" class="btn btn-light btn-xs somnilopy-form btn-outline-secondary" id='about-button-speech' style='margin-left: 0px;'>Update</button>    
+                </div>
+            </form>
+          <div class="col-sm-3 ">            
 
           </div>
-            <button type="submit" class="btn btn-light somnilopy-form btn-outline-info somnilopy-inline-button" id='about-button-speech'>Update</button>
-          <div class="col-sm-3"></div>
         </div>
+        
         <div class="row" style="padding-bottom: 10px">
           <div class="col-sm-1 section name"></div>
           <div class="col-sm-11 sec" id="actions" >
