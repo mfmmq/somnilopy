@@ -29,4 +29,4 @@ SoundFile==0.10.2
 SpeechRecognition==3.8.1
 traitlets==4.3.2
 wcwidth==0.1.7
-Werkzeug==0.15.2
+Werkzeug==0.15.3
