@@ -10,10 +10,10 @@ from somnilopy import settings
 class Backend:
     def __init__(self, recorder):
         self.app = Flask(__name__)
-        CORS(self.app)
         self.app.recorder = recorder
         self.configure_app()
         self.initialize_app()
+        CORS(self.app)
 
     def run(self):
         '''

@@ -16,18 +16,15 @@ function loadPage(date_num, time_num) {
     // Do some initialising variables
     // Get data
     obj_files = JSON.parse(request.responseText);
-    console.log(obj_files)
+og(obj_files)
     if (obj_files.length > 0) {
       unique_days = createDays(obj_files);
       document.getElementById('error-message').style.display = 'none'
       document.getElementById('container-somnilopy').style.display = 'block'
       // Set fields
-      document.getElementById("row-datenav").style.display='block'
-      document.getElementById("row-timenav").style.display='block'
-      document.getElementById("row-about-name").style.display='block'
-      document.getElementById("row-about-length").style.display='block'
-      document.getElementById("row-about-speech").style.display='block'
-      document.getElementById("recording-toggle-link").onclick = function() {toggleRecording()}
+      document.getElementById("datenav-name").innerHTML = "Date"
+      document.getElementById("timenav-name").innerHTML = "Time"
+      document.getElementById("info-name").innerHTML = "About"
 
       // Load page
       loadDateLinks(date_num);
@@ -219,11 +216,9 @@ function loadTimeLinks(date_num, time_num) {
 function loadFileInfo(date_num, time_num) {
   // Write a little blurb
   obj_file = obj_files[date_num].files[time_num]
-  document.getElementById("about-content-name").innerHTML = obj_file.name
-  document.getElementById("about-content-length").innerHTML = obj_file.length + " seconds"
-  document.getElementById("about-input-speech").placeholder = obj_file.comment
-  document.getElementById("about-input-speech").value = obj_file.comment
-  document.getElementById("about-button-speech").onclick = function() {updateComment(date_num, time_num)}
+  info_html = "Name: " + obj_file.name + "<br>"
+  info_html += "Length: " + obj_file.length + " seconds<br>"
+  document.getElementById('info').innerHTML = info_html
   loadButtons(date_num, time_num)
   loadLabels(date_num, time_num)
 }
@@ -256,7 +251,7 @@ function loadLabels(date_num, time_num) {
 function playSample(date_num, time_num) {
   file_name = obj_files[date_num].files[time_num].name
   label = obj_files[date_num].files[time_num].label
-  path = HOST+'/files/' + file_name + '/download'
+  path = HOST+'/files/'+label+'/'+file_name
   console.log(path)
   download_request = new XMLHttpRequest();
   download_request.responseType = 'blob';
@@ -266,11 +261,15 @@ function playSample(date_num, time_num) {
   download_request.addEventListener('readystatechange', function(e) {
       if(download_request.readyState == 2 && download_request.status == 200) {
           // Download is being started
+        console.log(1)
       }
       else if(download_request.readyState == 3) {
           // Download is under progress
+        console.log(3)
       }
       else if(download_request.readyState == 4) {
+        console.log(4)
+        console.log(download_request.status)
         if (download_request.status == 200) {
           url = URL.createObjectURL(download_request.response);
           setTimeout(function() {
@@ -289,11 +288,13 @@ function playSample(date_num, time_num) {
             document.getElementById('btn-play-sample').classList.remove('active');
             document.getElementById('btn-play-sample').disabled = false;
           });
+          console.log(download_request.status)
           Howler.volume(0.5);
           sound.load();
           document.getElementById('btn-play-sample').disabled = true;
           document.getElementById('btn-play-sample').classList.add('active')
           sound.play();
+          console.log(download_request.status)
 
         }
         else {
@@ -332,7 +333,7 @@ function downloadSample(date_num, time_num) {
   // Download file with file_name 
   file_name = obj_files[date_num].files[time_num].name
   label = obj_files[date_num].files[time_num].label
-  path = HOST+'/files/'+file_name + '/download'
+  path = HOST+'/download/'+label+'/'+file_name
   download_request = new XMLHttpRequest();
   download_request.responseType = 'blob';
   download_request.open('GET', path);
@@ -361,146 +362,77 @@ function downloadSample(date_num, time_num) {
   })
 } 
 
-function applyLabel(date_num, time_num, label, action) {
-  file_name = obj_files[date_num].files[time_num].name
-  path = HOST+'/files/'+file_name 
-  var mimeType = "application/json"
-  request = new XMLHttpRequest();
-  request.open(action, path);
-  request.setRequestHeader('Content-type', mimeType);  
-  request.send(JSON.stringify({"label": label}));
-  request.addEventListener('readystatechange', function(e) {
-      if(request.readyState == 4) {
-        if (request.status == 200) {
-          obj_files[date_num].files[time_num].label = label
-          loadButtons(date_num, time_num)
-        }
-        else {
-          alert(label+" label unsuccessful: "+request.status + " " + request.message)
-        }
-      }
-    }
-  )
-}
-
 function markNotSleeptalking(date_num, time_num) {
-  applyLabel(date_num, time_num, 'not-sleeptalking', 'PUT')
-}
-
-
-function markIsSleeptalking(date_num, time_num) {
-  applyLabel(date_num, time_num, 'is-sleeptalking', 'PUT')
-}
-
-function markDelete(date_num, time_num) {
-    // Download file with file_name 
+  // Download file with file_name 
   file_name = obj_files[date_num].files[time_num].name
-  old_label = obj_files[date_num].files[time_num].label
-  path = HOST+'/files/'+file_name
-  request = new XMLHttpRequest();
-  request.open('DELETE', path);
-  request.addEventListener('readystatechange', function(e) {
-    if(request.readyState == 4) {
-      if (request.status == 200) {
-        obj_files[date_num].files[time_num].label = label
+  label = obj_files[date_num].files[time_num].label
+  path = HOST+'/label/not-sleeptalking/'+label+'/'+file_name
+  not_sleeptalking_request = new XMLHttpRequest();
+  not_sleeptalking_request.open('GET', path);
+  not_sleeptalking_request.send();
+  not_sleeptalking_request.addEventListener('readystatechange', function(e) {
+    if(not_sleeptalking_request.readyState == 4) {
+      if (not_sleeptalking_request.status == 200) {
+        obj_files[date_num].files[time_num].label = 'not-sleeptalking'
         loadButtons(date_num, time_num)
       }
       else {
-        alert("delete unsuccessful: "+request.status + " "+request.message)
+        alert("not-sleeptalking label unsuccessful")
       }
     }
   }
-  )}
+  )
+}
 
-function updateComment(date_num, time_num) {
-  new_comment = document.getElementById('about-input-speech').value
+function markIsSleeptalking(date_num, time_num) {
+  // Download file with file_name 
   file_name = obj_files[date_num].files[time_num].name
-  path = HOST+'/files/'+file_name 
-  var mimeType = "application/json"
-  request = new XMLHttpRequest();
-  request.open('PUT', path);
-  request.setRequestHeader('Content-type', mimeType);  
-  request.send(JSON.stringify({"comment": new_comment}));
-  request.addEventListener('readystatechange', function(e) {
-      if(request.readyState == 4) {
-        if (request.status == 200) {
-          document.getElementById('about-input-speech-help').innerHTML = 'Updated comment to "'+new_comment +'"'
-          obj_files[date_num].files[time_num].comment = new_comment
-          loadButtons(date_num, time_num)
-        }
-        else {
-          alert(label+" comment unsuccessful: "+request.status + " " + request.message)
-        }
+  label = obj_files[date_num].files[time_num].label
+  path = HOST+'/label/is-sleeptalking/'+label+'/'+file_name
+  is_sleeptalking_request = new XMLHttpRequest();
+  is_sleeptalking_request.open('GET', path);
+  is_sleeptalking_request.send();
+  is_sleeptalking_request.addEventListener('readystatechange', function(e) {
+    if(is_sleeptalking_request.readyState == 4) {
+      if (is_sleeptalking_request.status == 200) {
+        obj_files[date_num].files[time_num].label = 'is-sleeptalking'
+        loadButtons(date_num, time_num)
+      }
+      else {
+        alert("is-sleeptalking label unsuccessful: "+is_sleeptalking_request.status)
       }
     }
-  )
-}
-
-function checkRecording() {
-  path = HOST+'/recording/status'
-  var mimeType = "application/json"
-  request = new XMLHttpRequest();
-  request.open('GET', path);
-  request.setRequestHeader('Content-type', mimeType);  
-  request.send();
-  request.addEventListener('readystatechange', function(e) {
-      if(request.readyState == 4) {
-        console.log('Checking recording status, got request status ' + request.status + ' and message ' + request.responseText )
-        if (request.status == 200) {
-          if (request.responseText == "true\n") {
-            console.log('Still recording')
-            document.getElementById('recording-icon-on').style.display = 'block'
-            document.getElementById('recording-icon-off').style.display = 'none'
-          }
-          else {
-            console.log('Not recording')
-            document.getElementById('recording-icon-on').style.display = 'none'
-            document.getElementById('recording-icon-off').style.display = 'block'          
-          }
-        }
-      }
-    }
-  )
-}
-
-function toggleRecording() {
-  console.log(document.getElementById('recording-icon-on').style.display)
-  if (document.getElementById('recording-icon-on').style.display == 'block') {
-    controlRecording('stop')
-    document.getElementById('recording-icon-on').style.display = 'none'
-    document.getElementById('recording-icon-off').style.display = 'block'
   }
-  else {
-    controlRecording('start')
-    document.getElementById('recording-icon-off').style.display = 'none'
-    document.getElementById('recording-icon-on').style.display = 'block'
-  }
-}
-
-function controlRecording(controlType) {
-  path = HOST+'/recording/' + controlType
-  var mimeType = "application/json"
-  console.log('Actioning control '+controlType)
-  request = new XMLHttpRequest();
-  request.open('POST', path);
-  request.setRequestHeader('Content-type', mimeType);  
-  request.send();
-  request.addEventListener('readystatechange', function(e) {
-      if(request.readyState == 4) {
-        return request.status
-      }
-    }
   )
 }
 
-
+function markDelete(date_num, time_num) {
+  // Download file with file_name 
+  file_name = obj_files[date_num].files[time_num].name
+  label = obj_files[date_num].files[time_num].label
+  path = HOST+'/files/'+label+'/'+file_name
+  delete_request = new XMLHttpRequest();
+  delete_request.open('DELETE', path);
+  delete_request.send();
+  delete_request.addEventListener('readystatechange', function(e) {
+    if(delete_request.readyState == 4) {
+      if (delete_request.status == 200) {
+        obj_files[date_num].files.splice(time_num, 1);
+        recreateChart(date_num)
+        loadTimeLinks(date_num, time_num);
+      }
+      else {
+        alert("Delete unsuccessful: "+delete_request.status)
+      }
+    }
+  }
+  )
+}
 
 var ctx = document.getElementById('myChart').getContext('2d');
 var obj_files = [];
 var chart = null;
-checkRecording()
 loadPage(0,0)
-var intervalID = setInterval(checkRecording, 10000);
 
 
 
