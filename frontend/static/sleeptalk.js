@@ -1,7 +1,7 @@
 var DEFAULT_BACKGROUND_COLOR = "rgba(190, 190, 190, 0.3)";
 var DEFAULT_BORDER_COLOR = "rgb(120, 120, 120, 0.5)";
 var DOWNLOAD_URL = "download";
-var HOST = "http://localhost:5000/api";
+var HOST = "http://127.0.0.1:5000/api";
 
 function loadPage(date_num, time_num) {
 
@@ -18,6 +18,7 @@ function loadPage(date_num, time_num) {
     obj_files = JSON.parse(request.responseText);
     console.log(obj_files)
     if (obj_files.length > 0) {
+      unique_days = createDays(obj_files);
       unique_days = createDays(obj_files);
       document.getElementById('error-message').style.display = 'none'
       document.getElementById('container-somnilopy').style.display = 'block'
@@ -369,6 +370,7 @@ function applyLabel(date_num, time_num, label, action) {
   request.open(action, path);
   request.setRequestHeader('Content-type', mimeType);  
   request.send(JSON.stringify({"label": label}));
+  console.log('Applying label ' + label + ' to file ' + file_name)
   request.addEventListener('readystatechange', function(e) {
       if(request.readyState == 4) {
         if (request.status == 200) {
@@ -393,12 +395,14 @@ function markIsSleeptalking(date_num, time_num) {
 }
 
 function markDelete(date_num, time_num) {
-    // Download file with file_name 
+  // Download file with file_name 
   file_name = obj_files[date_num].files[time_num].name
   old_label = obj_files[date_num].files[time_num].label
   path = HOST+'/files/'+file_name
   request = new XMLHttpRequest();
+  console.log('Making delete request for ' + file_name)
   request.open('DELETE', path);
+  request.send()
   request.addEventListener('readystatechange', function(e) {
     if(request.readyState == 4) {
       if (request.status == 200) {

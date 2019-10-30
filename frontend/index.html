@@ -28,7 +28,6 @@
           <div class="col-sm-9" style="width: 130px">
             <font style="font-size:20px">Somnilopy</font>
           </div>
-          <div class="col-sm-1">toggle</div>
           <div class="col-sm-1 recording-status" id='recording-status'>
             <a class="recording-status" id='recording-toggle-link'>
               <i id='recording-icon-off' class="fa fa-microphone-slash recording-icon off" style="display: block;"></i>
@@ -78,14 +77,15 @@
         <div class="row" style="display: none;" id='row-about-speech'>
           <div class="col-sm-1 section name" id="about-title-speech" style="min-width: 60px;">Speech</div>
               <form class = "form-inline" role = "form">
-                <div class='form-group col-sm-6' style='margin-right: -15px'> 
+                <div class='form-group col-sm-6' style='margin-right: -15px, height: 20px;'> 
                   <input type="Speech" class="form-control somnilopy-form somnilopy-input" id="about-input-speech" placeholder="Speech" style='width: 100%'>
-                  <small class="form-text text-muted" style='height: 16px;' id='about-input-speech-help'> </small>
                   
                 </div>
                 <div class='form-group col-sm-1'>
                   <button type="submit" class="btn btn-light btn-xs somnilopy-form btn-outline-secondary" id='about-button-speech' style='margin-left: 0px;'>Update</button>    
-                </div>
+                </div><br><br>
+                  <small class="form-text text-muted" style='height: 16px;' id='about-input-speech-help'> </small>
+                
             </form>
           <div class="col-sm-3 ">            
 
@@ -110,7 +110,7 @@
                 <input type="radio" name="options" id="btn-not-sleeptalking" autocomplete="off"> Not sleeptalking
               </label>
             </div>
-            <button onClick="" class="btn btn-outline-secondary btn-xs" id="btn-delete-sample">Delete</button>
+            <button class="btn btn-outline-secondary btn-xs" id="btn-delete-sample">Delete</button>
 
           </div>
         </div>

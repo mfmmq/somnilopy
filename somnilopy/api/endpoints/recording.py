@@ -11,10 +11,10 @@ recording_ns = api.namespace('recording', description='Endpoints for checking an
 @recording_ns.route('/status')
 class RecordingCollection(Resource):
     def get(self):
-        '''
+        """
         Get the current status, ie whether somnilopy is currently recording or not
         :return:
-        '''
+        """
         if app.recorder.poller.stream and app.recorder.poller.stream.is_active():
             return True
         else:
@@ -24,10 +24,10 @@ class RecordingCollection(Resource):
 @recording_ns.route('/start')
 class RecordingControlStart(Resource):
     def post(self):
-        '''
+        """
         Start recording
         :return:
-        '''
+        """
         response = app.recorder.start_listening()
         if response is None:
             return Response('Already recording', 201)
@@ -38,10 +38,10 @@ class RecordingControlStart(Resource):
 @recording_ns.route('/stop')
 class RecordingControlStop(Resource):
     def post(self):
-        '''
+        """
         Stop recording
         :return:
-        '''
+        """
         response = app.recorder.stop_listening()
         if response is None:
             return Response('Tried to stop recording, but already not recording', 201)
