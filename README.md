@@ -1,10 +1,11 @@
 # somnilopy
 ### A sound-activated sleep talking recorder
 
-### About
-A sleeptalking recorder for high quality audio. It polls for sleeptalking within a schedule and serves a simple, static HTML and JavaScript front-end that allows you to download, stream, delete, and categorise sleeptalking files.
+somnilopy is a sleeptalking recorder for high quality audio. It polls for sleep talking within a schedule and serves a simple, static HTML and JavaScript front-end that allows you to download, stream, delete, and categorise sleeptalking files.
 
-### Run on Linux
+We decided to make somnilopy since the sleep talking recorders we weren't able to get the kind of audio quality we wanted with phone apps. Because we wanted to use sleep talking audio for music, we needed high quality recordings. 
+
+## Run on Linux
 Frontend:
 Install requirements with:
 ```

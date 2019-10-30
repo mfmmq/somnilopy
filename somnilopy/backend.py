@@ -16,12 +16,12 @@ class Backend:
         CORS(self.app)
 
     def run(self):
-        '''
+        """
         Set up and run the back-end api for the frond-end that serves webpages and static files
         :param start_time:
         :param stop_time:
         :return:
-        '''
+        """
         logging.info('Starting up api')
         self.app.run()
 
@@ -38,4 +38,3 @@ class Backend:
         api.add_namespace(files_ns)
         api.add_namespace(recording_ns)
         self.app.register_blueprint(blueprint)
-

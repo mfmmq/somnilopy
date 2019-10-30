@@ -31,6 +31,9 @@ class SleeptalkPoller:
             frames_per_buffer=settings.STREAM_CHUNK
         )
 
+    def update_threshold(self, new_threshold):
+        self.min_is_sleeptalking_threshold = new_threshold
+
     def start(self):
         if self.p and self.stream:
             return None
@@ -98,10 +101,10 @@ class SleeptalkPoller:
         return 0
 
     def stop(self):
-        '''
+        """
         This will not save the current snippet, needs some updating
         :return:
-        '''
+        """
         if self.p:
             if self.stream and self.stream.is_active():
                 self.stream.stop_stream()

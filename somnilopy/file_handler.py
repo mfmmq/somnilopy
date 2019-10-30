@@ -6,7 +6,7 @@ from . import settings
 from somnilopy.exceptions import LabelNotAllowedError
 
 
-class RecordingsInterface:
+class FileHandler:
     def __init__(self, folder='recordings', file_name_prefix='autosave'):
         self.file_prefix = file_name_prefix
         self.folder = folder
@@ -31,35 +31,35 @@ class RecordingsInterface:
 
     @classmethod
     def update_comment(cls, audio, comment):
-        '''
+        """
         Takes path to an FLACC file and comment string and adds Vorbis comment string
-        '''
+        """
         audio["Comment"] = comment
         audio.save()
         return True
 
     def update_comment_from_name(self, name, comment):
-        '''
+        """
         Takes path to an FLACC file and comment string and adds Vorbis comment string
-        '''
-        logging.debug(f'Adding comment "{comment}" to file {name}')
+        """
         path = self.get_file_path_from_name(name)
         self.update_comment_from_path(path, comment)
         return True
 
     def update_comment_from_path(self, path, comment):
-        '''
+        """
         Takes path to an FLACC file and comment string and adds Vorbis comment string
-        '''
+        """
         logging.debug(f'Adding comment "{comment}" to file at path {path}')
         audio = FLAC(path)
         self.update_comment(audio, comment)
+        logging.info(FLAC(path)['Comment'])
         return True
 
     def get_comment(self, name):
-        '''
+        """
         Reads comment of FLAC file
-        '''
+        """
         path = self.get_file_path_from_name(name)
         audio = FLAC(path)
         try:
@@ -68,7 +68,7 @@ class RecordingsInterface:
             return '(null)' # Don't return an actual None, but return something nicely formatted
 
     def apply_label(self, name, new_label):
-        '''
+        """
         Move a file from one folder to another. This acts as a pseudo persistent label without having to
         modify comments or metadata. Having all the 'sleeptalking' and 'not sleeptalking' files in their
         respective folders also makes it easier to train models
@@ -76,7 +76,7 @@ class RecordingsInterface:
         :param new_label:
         :param name:
         :return:
-        '''
+        """
         # Make sure we have that file, else send a 404
         if new_label not in settings.LABELS:
             raise LabelNotAllowedError
@@ -88,7 +88,10 @@ class RecordingsInterface:
         return 200
 
     @staticmethod
-    def get_all_sorted_file_paths():
+    def get_all_file_paths():
+        """
+        :return:
+        """
         all_file_paths = []
         for label in settings.LABELS:
             dir = os.path.join(settings.PREFIX_DIR, label)
@@ -107,7 +110,7 @@ class RecordingsInterface:
         try:
             date, time = path.split("_")[1:3]
             time = time.replace(".flac", "")
-            time = time.replace("-", ":")[0:5]
+            time = time.replace("-", ":")[0:8]
             label, name = os.path.split(path)
             label = os.path.split(label)[1]
             comment = self.get_comment(name)

@@ -34,10 +34,10 @@ class SleeptalkProcessor:
         self.stop(self.snippets_queue)
 
     def speech2text(self, file_path):
-        '''
+        """
         Takes a path to an audio file and a recognizer object 
         --> Applies speech recognition, returns result as string if speech is recognised, None if not
-        '''
+        """
         try:
             file = sr.AudioFile(file_path)
         except AssertionError:
