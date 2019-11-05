@@ -1,6 +1,9 @@
 somnilopy/__pycache__/
 somnilopy/api/endpoints/__pycache__
 .idea/
+__pycache__
+frontend/pocketsphinx-5prealpha
+frontend/sphinxbase-5prealpha/
 
 recordings/*
 !recordings/.gitkeep
@@ -8,3 +11,4 @@ mylog.log
 test-files
 errors
 .ipynb_checkpoints
+

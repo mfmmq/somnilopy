@@ -14,7 +14,7 @@ sudo npm install http-server -g
 ```
 Run the somnilopy frontend by cloning the repo and running, from the frontend working directory
 ```
-working_dir/frontend $ npm http-server
+working_dir/frontend $ http-server
 ```
 
 
