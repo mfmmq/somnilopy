@@ -1,4 +1,5 @@
-import time
+from datetime import time, datetime
+import time as time2
 import schedule
 import logging
 import sys
@@ -54,15 +55,18 @@ class Recorder:
             self.start_listening()
             try:
                 while True:
-                    time.sleep(10)
+                    time2.sleep(10)
             except KeyboardInterrupt:
                 self.exit()
         else:
             # If the current time is in between start and stop time, this will not start otherwise
-            logging.debug(f'Scheduled between {self.start_time} and {self.stop_time}. '
-                         f'Current time is {time.localtime()}')
-            if (time.strptime(self.start_time, '%H:%M') < time.localtime() and time.localtime() > time.strptime(self.stop_time, '%H:%M'))\
-                    or time.strptime(self.start_time, '%H:%M') > time.localtime() and time.localtime() < time.strptime(self.stop_time, '%H:%M'):
+            start_time = datetime.strptime(self.start_time, '%H:%M').time()
+            stop_time = datetime.strptime(self.stop_time, '%H:%M').time()
+            local_time = datetime.now().time()
+            logging.debug(f'Scheduled between {start_time} and {stop_time}. '
+                         f'Current time is {local_time.strftime("%H:%M")}')
+            if (start_time < local_time)\
+                    or start_time > local_time and local_time < stop_time:
                 logging.debug("Current time is within schedule, starting now")
                 self.start_listening()
             schedule.every().day.at(self.start_time).do(self.start_listening)
@@ -70,7 +74,7 @@ class Recorder:
             try:
                 while True:
                     schedule.run_pending()
-                    time.sleep(10)
+                    time2.sleep(10)
             except KeyboardInterrupt:
                 self.exit()
 
