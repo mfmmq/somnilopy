@@ -11,6 +11,7 @@ class Backend:
     def __init__(self, recorder):
         self.app = Flask(__name__)
         self.app.recorder = recorder
+        self.app.recorder.run()
         self.configure_app()
         self.initialize_app()
         CORS(self.app)

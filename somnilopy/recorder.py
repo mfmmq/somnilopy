@@ -59,7 +59,10 @@ class Recorder:
                 self.exit()
         else:
             # If the current time is in between start and stop time, this will not start otherwise
-            if time.strptime(self.start_time, '%H:%M') < time.localtime() < time.strptime(self.stop_time, '%H:%M'):
+            logging.debug(f'Scheduled between {self.start_time} and {self.stop_time}. '
+                         f'Current time is {time.localtime()}')
+            if (time.strptime(self.start_time, '%H:%M') < time.localtime() and time.localtime() > time.strptime(self.stop_time, '%H:%M'))\
+                    or time.strptime(self.start_time, '%H:%M') > time.localtime() and time.localtime() < time.strptime(self.stop_time, '%H:%M'):
                 logging.debug("Current time is within schedule, starting now")
                 self.start_listening()
             schedule.every().day.at(self.start_time).do(self.start_listening)
