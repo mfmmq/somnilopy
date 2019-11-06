@@ -65,10 +65,10 @@ class Recorder:
             local_time = datetime.now().time()
             logging.debug(f'Scheduled between {start_time} and {stop_time}. '
                          f'Current time is {local_time.strftime("%H:%M")}')
-            if (start_time < local_time < datetime.strptime('23:59', '%H:%M').time())\
-                    or start_time > local_time and local_time < stop_time:
-                logging.debug("Current time is within schedule, starting now")
-                self.start_listening()
+#            if (start_time < local_time < datetime.strptime('23:59', '%H:%M').time())\
+ #                   or start_time > local_time and local_time < stop_time:
+  #              logging.debug("Current time is within schedule, starting now")
+  #              self.start_listening()
             schedule.every().day.at(self.start_time).do(self.start_listening)
             schedule.every().day.at(self.stop_time).do(self.stop_listening)
             try:
