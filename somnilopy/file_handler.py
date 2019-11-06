@@ -78,7 +78,7 @@ class FileHandler:
         :return:
         """
         # Make sure we have that file, else send a 404
-        if new_label not in settings.LABELS:
+        if new_label not in settings.LABELS and new_label.lower() != 'delete':
             raise LabelNotAllowedError
         # Move to label named folder
         current_path = self.get_file_path_from_name(name)
