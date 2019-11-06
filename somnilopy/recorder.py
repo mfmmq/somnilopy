@@ -49,6 +49,17 @@ class Recorder:
         self.t = Thread(target=self.run_schedule)
         self.t.start()
 
+    @staticmethod
+    def is_time_between(start_time, stop_time, check_time=None):
+        # If check time is not given, default to current UTC time
+        check_time = check_time or datetime.now().time()
+        logging.debug(f'Scheduled between {start_time} and {stop_time}. '
+                      f'Current time is {check_time.strftime("%H:%M")}')
+        if start_time < stop_time:
+            return check_time >= start_time and check_time <= stop_time
+        else:  # crosses midnight
+            return check_time >= start_time or check_time <= stop_time
+
     def run_schedule(self):
         if self.force_recording:
             logging.info(f"Parameter --force-record is set")
@@ -63,10 +74,7 @@ class Recorder:
             start_time = datetime.strptime(self.start_time, '%H:%M').time()
             stop_time = datetime.strptime(self.stop_time, '%H:%M').time()
             local_time = datetime.now().time()
-            logging.debug(f'Scheduled between {start_time} and {stop_time}. '
-                         f'Current time is {local_time.strftime("%H:%M")}')
-            if (start_time < local_time < datetime.strptime('23:59', '%H:%M').time())\
-                    or start_time > local_time and local_time < stop_time:
+            if self.is_time_between(start_time, stop_time):
                 logging.debug("Current time is within schedule, starting now")
                 self.start_listening()
             schedule.every().day.at(self.start_time).do(self.start_listening)
@@ -108,6 +116,8 @@ class Recorder:
         :return:
         """
         self.stop_event.set()
+        self.poller.stop()
+        self.processor.stop()
         if not self.poller_thread or not self.poller_thread.is_alive():
             return None
         self.poller_thread.join()

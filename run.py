@@ -25,10 +25,10 @@ def setup_argparse():
                         type=str
                         )
     parser.add_argument("--min-threshold",
-                        help="Minimum threshold to consider a noise as sleeptalking. Defaults to 600",
+                        help="Minimum threshold to consider a noise as sleeptalking. Defaults to 800",
                         dest="min_threshold",
                         action="store",
-                        default=600,
+                        default=800,
                         type=int
                         )
     args = parser.parse_args()
@@ -44,7 +44,6 @@ if __name__ == "__main__":
 
     args = setup_argparse()
     setup_logging()
-
 
     snippets_queue = []
     autosave_dir = os.path.join('recordings', 'autosave')
