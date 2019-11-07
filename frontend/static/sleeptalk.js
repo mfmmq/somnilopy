@@ -407,7 +407,7 @@ function markDelete(date_num, time_num) {
     if(request.readyState == 4) {
       if (request.status == 200) {
         obj_files[date_num].files[time_num].label = label
-        loadButtons(date_num, time_num)
+        loadTimeLinks(date_num, time_num)
       }
       else {
         alert("delete unsuccessful: "+request.status + " "+request.message)
