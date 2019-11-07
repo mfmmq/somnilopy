@@ -31,7 +31,7 @@ class SleeptalkProcessor:
                         logging.debug(f"No speech detected for file at {file_path}")
             else:
                 time.sleep(sleep_time)
-        self.stop(self.snippets_queue)
+        self.stop()
 
     def speech2text(self, file_path):
         """
@@ -58,9 +58,5 @@ class SleeptalkProcessor:
         logging.info(f"Saved snippet at {file_path}")
         return file_path   
 
-    def stop(self, snippets_queue):
+    def stop(self):
         logging.info(f"Stopping SleeptalkProcessor, stop event set")
-        if snippets_queue:
-            for snippet_tuple in snippets_queue:
-                self.save_snippet(snippet_tuple)
-            logging.info(f"Wrote {len(snippets_queue)} to file")
