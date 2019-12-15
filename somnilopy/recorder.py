@@ -47,7 +47,6 @@ class Recorder:
 
     def run(self):
         self.run_schedule()
-       # self.t.start()
 
     @staticmethod
     def is_time_between(start_time, stop_time, check_time=None):
@@ -86,7 +85,6 @@ class Recorder:
                     time2.sleep(1)
             except KeyboardInterrupt:
                 self.exit()
-
 
     def exit(self):
         schedule.clear()
@@ -149,7 +147,7 @@ class Recorder:
         return
 
     def _refresh_schedule(self):
-        if time.strptime(self.start_time, '%H:%M') < time.localtime() < time.strptime(self.stop_time, '%H:%M'):
+        if time2.strptime(self.start_time, '%H:%M') < time2.localtime() < time2.strptime(self.stop_time, '%H:%M'):
             logging.debug("Current time is within schedule, starting now")
             self.start_listening()
         schedule.clear()
