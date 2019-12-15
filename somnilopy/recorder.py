@@ -46,8 +46,8 @@ class Recorder:
         self.scheduler_thread = None
 
     def run(self):
-        self.t = Thread(target=self.run_schedule)
-        self.t.start()
+        self.run_schedule()
+       # self.t.start()
 
     @staticmethod
     def is_time_between(start_time, stop_time, check_time=None):
@@ -68,6 +68,7 @@ class Recorder:
                 while True:
                     time2.sleep(10)
             except KeyboardInterrupt:
+                logging.info('Exit signal received')
                 self.exit()
         else:
             # If the current time is in between start and stop time, this will not start otherwise
@@ -82,12 +83,14 @@ class Recorder:
             try:
                 while True:
                     schedule.run_pending()
-                    time2.sleep(10)
+                    time2.sleep(1)
             except KeyboardInterrupt:
                 self.exit()
 
+
     def exit(self):
         schedule.clear()
+#        self.t.join(timeout=1)
         self.stop_listening()
         sys.exit(0)
 
