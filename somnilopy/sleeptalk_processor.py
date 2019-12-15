@@ -31,7 +31,6 @@ class SleeptalkProcessor:
                         logging.debug(f"No speech detected for file at {file_path}")
             else:
                 time.sleep(sleep_time)
-        self.stop()
 
     def speech2text(self, file_path):
         """
