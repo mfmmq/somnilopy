@@ -1,6 +1,7 @@
 import logging
 import argparse
 import os
+import threading
 from somnilopy.recorder import Recorder
 from somnilopy.backend import Backend
 
@@ -48,6 +49,5 @@ if __name__ == "__main__":
     snippets_queue = []
     autosave_dir = os.path.join('recordings', 'autosave')
     recorder = Recorder(args.schedule, args.force, args.min_threshold)
-    recorder.run()
     backend = Backend(recorder)
-    backend.app.run()
+    backend.run()

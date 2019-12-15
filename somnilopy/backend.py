@@ -5,13 +5,14 @@ from somnilopy.api.endpoints.files import files_ns
 from somnilopy.api.endpoints.recording import recording_ns
 from somnilopy.api.restplus import api
 from somnilopy import settings
-
+import threading
 
 class Backend:
     def __init__(self, recorder):
         self.app = Flask(__name__)
         self.app.recorder = recorder
-        self.app.recorder.run()
+        self.t = threading.Thread(target=recorder.run)
+        self.t.start()
         self.configure_app()
         self.initialize_app()
         CORS(self.app)
@@ -25,6 +26,7 @@ class Backend:
         """
         logging.info('Starting up api')
         self.app.run()
+        self.t.join()
 
     def configure_app(self):
         self.app.config['SERVER_NAME'] = settings.FLASK_SERVER_NAME
