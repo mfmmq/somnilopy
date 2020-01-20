@@ -12,14 +12,13 @@ class SleeptalkProcessor:
     def __init__(self, file_handler, to_text=True, snippets_queue=None, stop_event=None):
         self.file_handler = file_handler
         self.sample_width = pyaudio.get_sample_size(settings.STREAM_AUDIO_FORMAT)
-        self.loop = True
         self.to_text = to_text
         self.recognizer = sr.Recognizer()
         self.snippets_queue = [] if snippets_queue is None else snippets_queue
         self.stop_event = stop_event
 
     def process_snippets(self, sleep_time=2):
-        while self.loop and not self.stop_event.is_set():
+        while not self.stop_event.is_set():
             if len(self.snippets_queue):
                 snippet_tuple = self.snippets_queue.pop(0)
                 file_path = self.save_snippet(snippet_tuple)

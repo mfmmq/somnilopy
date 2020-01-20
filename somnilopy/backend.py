@@ -7,6 +7,7 @@ from somnilopy.api.restplus import api
 from somnilopy import settings
 import threading
 
+
 class Backend:
     def __init__(self, recorder):
         self.app = Flask(__name__)

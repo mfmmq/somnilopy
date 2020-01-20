@@ -116,9 +116,12 @@ class Recorder:
         just in case we are in the middle of recording or processing
         :return:
         """
-        self.stop_event.set()
-        self.poller.stop()
-        self.processor.stop()
+        try:
+            self.stop_event.set()
+            self.poller.stop()
+            self.processor.stop()
+        except:
+            pass
         if not self.poller_thread or not self.poller_thread.is_alive():
             return None
         self.poller_thread.join()
