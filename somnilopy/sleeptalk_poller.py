@@ -8,7 +8,7 @@ from somnilopy import settings
 
 
 class SleeptalkPoller:
-    def __init__(self, min_snippet_time=1, max_silence_time=1, min_is_sleeptalking_threshold=600, prewindow=1,
+    def __init__(self, min_snippet_time=3, max_silence_time=3, min_is_sleeptalking_threshold=500, prewindow=1,
                  snippets_queue=None, stop_event=None):
         self.stream = None
         # Variables to set up our thresholds
