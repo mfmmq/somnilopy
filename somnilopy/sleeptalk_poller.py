@@ -12,7 +12,7 @@ class SleeptalkPoller:
                  snippets_queue=None, stop_event=None):
         self.stream = None
         # Variables to set up our thresholds
-        self.prewindow = prewindow # seconds
+        self.prewindow = prewindow  # seconds
         self.min_snippet_time = min_snippet_time  # seconds
         self.max_silence_time = max_silence_time  # seconds
         self.min_is_sleeptalking_threshold = min_is_sleeptalking_threshold
@@ -50,18 +50,19 @@ class SleeptalkPoller:
             data_chunk = array('h', self.stream.read(settings.STREAM_CHUNK))
             snippet.extend(data_chunk)
 
-        self.reset_silence() # start silence timer
+        self.reset_silence()  # start silence timer
 
         while self.stop_event and not self.stop_event.is_set():
             if self.is_sleeptalking_noise(data_chunk):
-                self.reset_silence() # restart silence timer
+                self.reset_silence()  # restart silence timer
             if self.is_too_much_silence() and not self.is_sleeptalking_noise(snippet):
-                snippet = array('h') # fresh snippet
-            elif self.is_sleeptalking_noise(snippet) and self.is_recording_sleeptalking(snippet) and self.is_too_much_silence():
+                snippet = array('h')  # fresh snippet
+            elif self.is_sleeptalking_noise(snippet) and self.is_recording_sleeptalking(
+                    snippet) and self.is_too_much_silence():
                 # Move the snippet to another queue to be processed so we don't delay the recording thread
                 # This is done in anticipation some audio processing has potential to take a while
                 self.snippets_queue.append((snippet, datetime.now()))
-                logging.info(f"Added snippet of sleeptalking length {len(snippet)/settings.STREAM_RATE:.2f} seconds")
+                logging.info(f"Added snippet of sleeptalking length {len(snippet) / settings.STREAM_RATE:.2f} seconds")
                 snippet = array('h')
                 # add a buffer to the start of the snippet
                 while self.duration(snippet) < self.prewindow:
@@ -108,6 +109,7 @@ class SleeptalkPoller:
         if self.p:
             if self.stream and self.stream.is_active():
                 self.stream.stop_stream()
+                self.stream.close()
                 self.stream = None
             else:
                 return None
