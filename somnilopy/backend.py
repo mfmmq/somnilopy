@@ -12,8 +12,7 @@ class Backend:
     def __init__(self, recorder):
         self.app = Flask(__name__)
         self.app.recorder = recorder
-        self.t = threading.Thread(target=recorder.run)
-        self.t.start()
+        self.run_recorder()
         self.configure_app()
         self.initialize_app()
         CORS(self.app)
@@ -25,9 +24,9 @@ class Backend:
         :param stop_time:
         :return:
         """
-        logging.info('Starting up api')
+        logging.info(f'Starting up api at http://{settings.FLASK_SERVER_NAME}/api')
         self.app.run()
-        self.t.join()
+        self.app.t.join()
 
     def configure_app(self):
         self.app.config['SERVER_NAME'] = settings.FLASK_SERVER_NAME
@@ -42,3 +41,7 @@ class Backend:
         api.add_namespace(files_ns)
         api.add_namespace(recording_ns)
         self.app.register_blueprint(blueprint)
+
+    def run_recorder(self):
+        self.app.t = threading.Thread(target=self.app.recorder.run)
+        self.app.t.start()
