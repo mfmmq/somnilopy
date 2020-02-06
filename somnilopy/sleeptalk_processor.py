@@ -17,19 +17,14 @@ class SleeptalkProcessor:
         self.snippets_queue = [] if snippets_queue is None else snippets_queue
         self.stop_event = stop_event
 
-    def process_snippets(self, sleep_time=2):
+    def consume(self):
         while not self.stop_event.is_set():
-            if len(self.snippets_queue):
-                snippet_tuple = self.snippets_queue.pop(0)
-                file_path = self.save_snippet(snippet_tuple)
-                if self.to_text:
-                    text = self.speech2text(file_path)
-                    if text:
-                        self.file_handler.update_comment_from_path(file_path, text)
-                    else:
-                        logging.debug(f"No speech detected for file at {file_path}")
-            else:
-                time.sleep(sleep_time)
+            sound, timestamp = yield
+            file_path = self.save_snippet(sound, timestamp)
+            if self.to_text:
+                text = self.speech2text(file_path)
+                self.write_to_file(text, file_path)
+        self.stop()
 
     def speech2text(self, file_path):
         """
@@ -48,13 +43,15 @@ class SleeptalkProcessor:
             except sr.UnknownValueError:
                 return None
 
-    def save_snippet(self, snippet_tuple):
-        snippet, timestamp = snippet_tuple
-        file_name = f"{self.file_handler.file_prefix}_{timestamp.strftime('%m-%d_%H-%M-%S')}.flac"
+    def write_to_file(self, text, file_path):
+        if text:
+            self.file_handler.update_comment_from_path(file_path, text)
+        else:
+            logging.debug(f"No speech detected for file at {file_path}")
+
+    def save_snippet(self, sound, timestamp):
+        file_name = f"{self.file_handler.file_prefix}_{timestamp.strftime('%y-%m-%d_%H-%M-%S')}.flac"
         file_path = os.path.join(self.file_handler.folder, 'autosave', file_name)
-        sf_write(file_path, snippet, settings.STREAM_RATE)
+        sf_write(file_path, sound.array, settings.STREAM_RATE)
         logging.info(f"Saved snippet at {file_path}")
         return file_path   
-
-    def stop(self):
-        logging.info(f"Stopping SleeptalkProcessor, stop event set")

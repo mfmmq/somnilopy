@@ -25,7 +25,7 @@ def file_not_found_error_handler(e):
 
 @api.errorhandler(LabelNotAllowedError)
 def file_not_found_error_handler(e):
-    message = 'Label not allowed. Is it enabled in settings.py?'
+    message = 'Label not allowed. Is it enabled in calibration.py?'
     logging.exception(message)
     if not settings.FLASK_DEBUG:
         return {'message': message}, 404

@@ -2,11 +2,11 @@ import os
 import logging
 from glob import glob
 from mutagen.flac import FLAC
-from . import settings
+from somnilopy import settings
 from somnilopy.exceptions import LabelNotAllowedError
 
 
-class FileHandler:
+class FolderHandler:
     def __init__(self, folder='recordings', file_name_prefix='autosave'):
         self.file_prefix = file_name_prefix
         self.folder = folder
@@ -50,10 +50,9 @@ class FileHandler:
         """
         Takes path to an FLACC file and comment string and adds Vorbis comment string
         """
-        logging.debug(f'Adding comment "{comment}" to file at path {path}')
+        logging.info(f'Adding comment "{comment}" to file at path {path}')
         audio = FLAC(path)
         self.update_comment(audio, comment)
-        logging.info(FLAC(path)['Comment'])
         return True
 
     def get_comment(self, name):
