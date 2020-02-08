@@ -3,7 +3,7 @@ import time as time2
 import schedule
 import logging
 import sys
-from threading import Event
+from threading import Event, Thread
 from somnilopy.sleeptalk_processor import SleeptalkProcessor
 from somnilopy.sleeptalk_poller import SleeptalkPoller
 from somnilopy.handlers.folder_handler import FolderHandler
@@ -37,8 +37,8 @@ class Recorder:
         self.exit_event = Event()
         self.file_handler = FolderHandler()
         self.poller = SleeptalkPoller(stop_event=self.stop_event)
-        self.processor = SleeptalkProcessor(self.file_handler, snippets_queue=self.snippets_queue,
-                                            stop_event=self.stop_event)
+        self.processor = SleeptalkProcessor(self.file_handler, stop_event=self.stop_event)
+        self.thread = None
 
     def run(self):
         if self.force_recording:
@@ -101,9 +101,10 @@ class Recorder:
         else:
             self.stop_event.clear()
 
-            while not self.stop_event.is_set():
-                logging.info("Started Somnilopy")
-                self.poller.poll(self.processor.consume())
+            logging.info("Starting Somnilopy")
+            self.poller.current_consumer = self.processor.consume()
+            self.thread = Thread(target=self.poller.poll)
+            self.thread.start()
             return True
 
     def stop_listening(self):
