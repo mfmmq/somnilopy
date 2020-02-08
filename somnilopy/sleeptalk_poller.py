@@ -54,7 +54,6 @@ class SleeptalkPoller:
         """
         if self.current_consumer:
             self.current_consumer.close()
-            self.current_consumer = None
         if self.p:
             self.stream.stop_stream()
             self.stream.close()
