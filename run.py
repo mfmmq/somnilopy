@@ -56,4 +56,4 @@ if __name__ == "__main__":
     try:
         backend.run()
     except KeyboardInterrupt:
-        sys.exit(6545)
+        sys.exit()

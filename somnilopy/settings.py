@@ -23,7 +23,6 @@ LABELS = ['is-sleeptalking', 'not-sleeptalking', 'autosave']
 PREFIX_DIR = 'recordings'
 
 
-MIN_SNIPPET_TIME = 2
+MIN_LENGTH = 6
 MAX_SILENCE_TIME = 6
-PREWINDOW = 1
 SLEEPTALKING_VOL_THRESHOLD = 100

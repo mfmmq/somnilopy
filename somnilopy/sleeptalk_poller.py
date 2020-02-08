@@ -2,7 +2,7 @@ import pyaudio
 import logging
 from datetime import datetime
 
-from somnilopy.handlers.sound import Sound
+from somnilopy.handlers.stream_handler import Sound
 from somnilopy import settings
 
 
@@ -27,28 +27,21 @@ class SleeptalkPoller:
     def update_threshold(self, new_threshold):
         self.min_is_sleeptalking_threshold = new_threshold
 
-    def start(self, consumer):
-        if self.p and self.stream:
-            return None
-        else:
-            self.poll(consumer)
-
-    def poll(self, consumer):
-        self.current_consumer = consumer
+    def poll(self):
         self._setup_stream()
         logging.info("Now recording!")
         sound = Sound()
 
-        consumer.send(None)  # Start consumer
+        self.current_consumer.send(None)  # Start consumer
         try:
             while not self.stop_event.is_set():
-                while sound.duration < settings.PREWINDOW:
+                while not sound.is_long_enough:
                     sound.add_buffer(self.stream.read(settings.STREAM_CHUNK))
                 if sound.is_silent:
                     sound = Sound()
                 elif sound.done_recording:
-                    logging.info(f"Sending sleeptalking of length {sound.duration:.2f} seconds")
-                    consumer.send((sound, datetime.now()))
+                    logging.info(f"Sending sleeptalking of length {sound.length:.2f} seconds")
+                    self.current_consumer.send((sound, datetime.now()))
                     sound = Sound()
                 sound.add_buffer(self.stream.read(settings.STREAM_CHUNK))
         except OSError:
@@ -61,7 +54,6 @@ class SleeptalkPoller:
         """
         if self.current_consumer:
             self.current_consumer.close()
-            self.current_consumer = None
         if self.p:
             self.stream.stop_stream()
             self.stream.close()

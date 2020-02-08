@@ -9,12 +9,11 @@ from somnilopy import settings
 
 
 class SleeptalkProcessor:
-    def __init__(self, file_handler, to_text=True, snippets_queue=None, stop_event=None):
+    def __init__(self, file_handler, to_text=True, stop_event=None):
         self.file_handler = file_handler
         self.sample_width = pyaudio.get_sample_size(settings.STREAM_AUDIO_FORMAT)
         self.to_text = to_text
         self.recognizer = sr.Recognizer()
-        self.snippets_queue = [] if snippets_queue is None else snippets_queue
         self.stop_event = stop_event
 
     def consume(self):
@@ -24,7 +23,6 @@ class SleeptalkProcessor:
             if self.to_text:
                 text = self.speech2text(file_path)
                 self.write_to_file(text, file_path)
-        self.stop()
 
     def speech2text(self, file_path):
         """
