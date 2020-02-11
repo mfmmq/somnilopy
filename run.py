@@ -10,7 +10,7 @@ def setup_argparse():
     parser.add_argument("--schedule",
                         help="Set the schedule for when to record. Defaults to (and of format) 00:00>06:30",
                         dest="schedule",
-                        default="00:00>06:30",
+                        default="00:40>06:30",
                         type=str)
     parser.add_argument("--force-record",
                         help="Force record audio even if not within schedule",
