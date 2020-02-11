@@ -108,6 +108,7 @@ class FolderHandler:
             raise FileNotFoundError
         try:
             date, time = path.split("_")[1:3]
+            date = date.replace("-", "&#x2011;")
             time = time.replace(".flac", "")
             time = time.replace("-", ":")[0:8]
             label, name = os.path.split(path)

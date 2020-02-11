@@ -46,6 +46,7 @@ class Sound:
     @property
     def _is_loud_enough(self):
         # If the data_chunk is loud enough to be sleeptalking, return True
+        logging.debug(f'Maximum volume in sound is {max(self.array)}')
         return max(self.array) > settings.SLEEPTALKING_VOL_THRESHOLD
 
     @property
