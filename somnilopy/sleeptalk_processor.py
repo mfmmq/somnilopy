@@ -48,7 +48,7 @@ class SleeptalkProcessor:
             logging.debug(f"No speech detected for file at {file_path}")
 
     def save_snippet(self, sound, timestamp):
-        file_name = f"{self.file_handler.file_prefix}_{timestamp.strftime('%y-%m-%d_%H-%M-%S')}.flac"
+        file_name = f"{self.file_handler.file_prefix}_{timestamp.strftime('%Y-%m-%d_%H-%M-%S')}.flac"
         file_path = os.path.join(self.file_handler.folder, 'autosave', file_name)
         sf_write(file_path, sound.array, settings.STREAM_RATE)
         logging.info(f"Saved snippet at {file_path}")
