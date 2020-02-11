@@ -1,15 +1,12 @@
-from datetime import time, datetime
+from datetime import datetime
 import time as time2
 import schedule
 import logging
 import sys
-import re
-from threading import Thread, Event
+from threading import Event, Thread
 from somnilopy.sleeptalk_processor import SleeptalkProcessor
 from somnilopy.sleeptalk_poller import SleeptalkPoller
-from somnilopy.file_handler import FileHandler
-
-file_handler = FileHandler()
+from somnilopy.handlers.folder_handler import FolderHandler
 
 
 class Recorder:
@@ -36,17 +33,25 @@ class Recorder:
         """
         self.snippets_queue = []
         self.stop_event = Event()
-        self.file_handler = FileHandler()
-        self.poller = SleeptalkPoller(min_is_sleeptalking_threshold=min_is_sleeptalking_threshold,
-                                                snippets_queue=self.snippets_queue, stop_event=self.stop_event)
-        self.processor = SleeptalkProcessor(self.file_handler, snippets_queue=self.snippets_queue,
-                                                      stop_event=self.stop_event)
-        self.poller_thread = None
-        self.processor_thread = None
-        self.scheduler_thread = None
+        self.stop_event.set()
+        self.exit_event = Event()
+        self.file_handler = FolderHandler()
+        self.poller = SleeptalkPoller(stop_event=self.stop_event)
+        self.processor = SleeptalkProcessor(self.file_handler, stop_event=self.stop_event)
+        self.thread = None
 
     def run(self):
-        self.run_schedule()
+        if self.force_recording:
+            logging.info(f"Parameter --force-record is set")
+            try:
+                self.start_listening()
+                while not self.exit_event.is_set():
+                    time2.sleep(1)
+            except KeyboardInterrupt:
+                logging.info('Exit signal received')
+                self.exit()
+        else:
+            self.schedule()
 
     @staticmethod
     def is_time_between(start_time, stop_time, check_time=None):
@@ -59,38 +64,30 @@ class Recorder:
         else:  # crosses midnight
             return check_time >= start_time or check_time <= stop_time
 
-    def run_schedule(self):
-        if self.force_recording:
-            logging.info(f"Parameter --force-record is set")
+    def schedule(self):
+        # If the current time is in between start and stop time, this will not start otherwise
+        start_time = datetime.strptime(self.start_time, '%H:%M').time()
+        stop_time = datetime.strptime(self.stop_time, '%H:%M').time()
+        local_time = datetime.now().time()
+        if self.is_time_between(start_time, stop_time):
+            logging.debug("Current time is within schedule, starting now")
             self.start_listening()
-            try:
-                while True:
-                    time2.sleep(10)
-            except KeyboardInterrupt:
-                logging.info('Exit signal received')
-                self.exit()
-        else:
-            # If the current time is in between start and stop time, this will not start otherwise
-            start_time = datetime.strptime(self.start_time, '%H:%M').time()
-            stop_time = datetime.strptime(self.stop_time, '%H:%M').time()
-            local_time = datetime.now().time()
-            if self.is_time_between(start_time, stop_time):
-                logging.debug("Current time is within schedule, starting now")
-                self.start_listening()
-            schedule.every().day.at(self.start_time).do(self.start_listening)
-            schedule.every().day.at(self.stop_time).do(self.stop_listening)
-            try:
-                while True:
-                    schedule.run_pending()
-                    time2.sleep(1)
-            except KeyboardInterrupt:
-                self.exit()
+        schedule.every().day.at(self.start_time).do(self.start_listening)
+        schedule.every().day.at(self.stop_time).do(self.stop_listening)
+        try:
+            while not self.exit_event.is_set():
+                schedule.run_pending()
+                time2.sleep(1)
+        except KeyboardInterrupt:
+            logging.info('KeyboardInterrupt received')
+            self.exit()
 
     def exit(self):
+        self.exit_event.set()
+
         schedule.clear()
 #        self.t.join(timeout=1)
         self.stop_listening()
-        sys.exit(0)
 
     def start_listening(self):
         """
@@ -98,16 +95,16 @@ class Recorder:
         We create a new thread since threads can't be rerun
         :return:
         """
-        if self.poller_thread and self.poller_thread.is_alive():
+        if not self.stop_event.is_set():
             logging.warning(f'Tried to start listenning, but somnilopy is already recording')
             return None
         else:
             self.stop_event.clear()
-            self.poller_thread = Thread(target=self.poller.poll)
-            self.processor_thread = Thread(target=self.processor.process_snippets)
-            self.poller_thread.start()
-            self.processor_thread.start()
-            logging.info("Started Somnilopy")
+
+            logging.info("Starting Somnilopy")
+            self.poller.current_consumer = self.processor.consume()
+            self.thread = Thread(target=self.poller.poll)
+            self.thread.start()
             return True
 
     def stop_listening(self):
@@ -119,14 +116,9 @@ class Recorder:
         try:
             self.stop_event.set()
             self.poller.stop()
-            self.processor.stop()
+            return True
         except:
-            pass
-        if not self.poller_thread or not self.poller_thread.is_alive():
-            return None
-        self.poller_thread.join()
-        self.processor_thread.join()
-        return True
+            return False
 
     def update_threshold(self, new_threshold):
         """

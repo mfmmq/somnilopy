@@ -27,6 +27,7 @@
         color: #aaaaaa;
         font-size: 10pt;
         margin-right: 20px;
+        overflow-wrap: normal;
       }
       .date-link:hover {
         color: darkcyan;

@@ -1,6 +1,7 @@
 import logging
 import argparse
 import os
+import sys
 import threading
 from somnilopy.recorder import Recorder
 from somnilopy.backend import Backend
@@ -39,6 +40,8 @@ def setup_argparse():
 def setup_logging():
     logging.basicConfig(format="%(asctime)s - %(levelname)s [%(filename)s] - %(message)s",
                         level=logging.DEBUG)
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.WARNING)
 
 
 if __name__ == "__main__":
@@ -50,4 +53,7 @@ if __name__ == "__main__":
     autosave_dir = os.path.join('recordings', 'autosave')
     recorder = Recorder(args.schedule, args.force, args.min_threshold)
     backend = Backend(recorder)
-    backend.run()
+    try:
+        backend.run()
+    except KeyboardInterrupt:
+        sys.exit()

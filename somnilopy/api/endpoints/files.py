@@ -1,12 +1,11 @@
 import logging
-import mutagen
-from flask import Response, jsonify, request, send_file, abort, Flask
-from flask_restplus import Api, Resource, fields
-from somnilopy.file_handler import FileHandler
+from flask import Response, jsonify, request, send_file, abort
+from flask_restplus import Resource, fields
+from somnilopy.handlers.folder_handler import FolderHandler
 from somnilopy.api.restplus import api
 
 
-file_handler = FileHandler()
+file_handler = FolderHandler()
 files_ns = api.namespace('files', description='Operations related to sleeptalking audio files')
 
 
@@ -41,7 +40,6 @@ class FilesCollection(Resource):
         for file_path in file_paths:
             file_info.extend(file_handler.get_file_info_by_path(file_path))
         file_info.sort(key=lambda f: f['time'])
-        logging.info(file_info)
         # Create a list of info gro
         # Create a list of info grouped by date ie file: [..] date: 04-09
         files_by_date = []
@@ -121,7 +119,6 @@ class FilesDownloadItem(Resource):
         :return:
         """
         path = '../' + file_handler.get_file_path_from_name(name)
-        logging.info(path)
         try:
             return send_file(
                 path,

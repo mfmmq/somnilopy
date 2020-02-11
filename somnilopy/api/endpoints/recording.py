@@ -1,4 +1,5 @@
 import logging
+import threading
 from flask_restplus import Resource
 from somnilopy.api.restplus import api
 from flask import current_app as app
@@ -28,10 +29,15 @@ class RecordingControlStart(Resource):
         Start recording
         :return:
         """
-        response = app.recorder.start_listening()
-        if response is None:
+        if app.recorder.poller.stream and app.recorder.poller.stream.is_active():
             return Response('Already recording', 201)
         else:
+            app.recorder.exit()
+            logging.info('Recorder exited')
+            app.t.join()
+            logging.info('Thread joined')
+            app.t = threading.Thread(target=app.recorder.run)
+            app.t.start()
             return Response('Now recording', 200)
 
 
