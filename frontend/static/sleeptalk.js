@@ -295,7 +295,7 @@ function playSample(date_num, time_num) {
             }, 20
           ); 
           if (sound != null) {
-            stopSound()
+            stopSound(date_num, time_num)
           }
           sound = new Howl({
             src: [url],
@@ -305,12 +305,12 @@ function playSample(date_num, time_num) {
             format: 'flac'
           });
           sound.on('end', function(){
-            stopSound()
+            stopSound(date_num, time_num)
           });
           Howler.volume(0.5);
           sound.load();
           document.getElementById('btn-play-sample').innerHTML = 'Pause';
-          document.getElementById('btn-play-sample').onclick= function() {stopSound()}
+          document.getElementById('btn-play-sample').onclick= function() {stopSound(date_num, time_num)}
           document.getElementById('btn-play-sample').classList.add('active');
           sound.play();
 
@@ -323,7 +323,7 @@ function playSample(date_num, time_num) {
   )
 }
 
-function stopSound() {
+function stopSound(date_num, time_num) {
   sound.stop();
   sound.unload();
   sound = null;
@@ -349,7 +349,7 @@ function playAllSample(date_num) {
     play_all_button.disabled = false;
   }, delay);
 }
-
+git 
 function setDelay(date_num, time_num, delay) {
   setTimeout(function(){
     updateTimeLink(date_num, time_num)
