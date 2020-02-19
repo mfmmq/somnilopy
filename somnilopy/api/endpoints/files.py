@@ -85,14 +85,10 @@ class DatesCollection(Resource):
     @api.response(200, 'Successfully got audio dates')
     def get(self):
         args = request.args
-        no_break = bool(args.get('no_break', False))
         descending = bool(args.get('descending', True))
         offset = int(args.get('offset', 0))
-
         dates = sorted(file_handler.get_dates(), reverse=descending)
-
         count = int(args.get('count', len(dates)))
-
         dates = dates[offset:offset + count]
         return [{'date': date.replace("-", "&#x2011;"), 'raw_date': date, 'files': None} for date in dates]
 
