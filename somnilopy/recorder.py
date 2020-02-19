@@ -1,41 +1,38 @@
 from datetime import datetime
-import time as time2
+import time
 import schedule
 import logging
 import sys
 from threading import Event, Thread
 from somnilopy.sleeptalk_processor import SleeptalkProcessor
 from somnilopy.sleeptalk_poller import SleeptalkPoller
-from somnilopy.handlers.folder_handler import FolderHandler
+from somnilopy.handlers.file_handler import FileHandler
 
 
 class Recorder:
-    def __init__(self, input_schedule, force_recording, min_is_sleeptalking_threshold):
+    def __init__(self, input_schedule, force_recording):
         """
         Class for setting up and running the processor, poller, and api backend
         The poller listens for sleeptalking and the processor handles speech recognition
         This is set on a separate thread to avoid slowing down the poller
         :param input_schedule: formatted string that describes when we should be listenning to sleep talking
         :param force_recording: a boolean override for whether or not to listen for sleeptalking
-        :param min_is_sleeptalking_threshold: an integer value that sets how sensitive the poller is to recording noise
-               lower is more sensitive, higher is less sensitive
         """
         self.force_recording = force_recording
         self.start_time, self.stop_time = input_schedule.split('>')
-        self._set_up_components(min_is_sleeptalking_threshold)
+        self._set_up_components()
 
-    def _set_up_components(self, min_is_sleeptalking_threshold):
+    def _set_up_components(self):
         """
         Set up objects, threads, and stop event required as well as pointer to where the snippets should be stored
         in memory before they are saved
-        :param min_is_sleeptalking_threshold:
         :return:
         """
         self.snippets_queue = []
         self.stop_event = Event()
         self.stop_event.set()
         self.exit_event = Event()
-        self.file_handler = FolderHandler()
+        self.file_handler = FileHandler()
         self.poller = SleeptalkPoller(stop_event=self.stop_event)
         self.processor = SleeptalkProcessor(self.file_handler, stop_event=self.stop_event)
         self.thread = None
@@ -46,7 +43,7 @@ class Recorder:
             try:
                 self.start_listening()
                 while not self.exit_event.is_set():
-                    time2.sleep(1)
+                    time.sleep(1)
             except KeyboardInterrupt:
                 logging.info('Exit signal received')
                 self.exit()
@@ -60,7 +57,7 @@ class Recorder:
         logging.debug(f'Scheduled between {start_time} and {stop_time}. '
                       f'Current time is {check_time.strftime("%H:%M")}')
         if start_time < stop_time:
-            return check_time >= start_time and check_time <= stop_time
+            return stop_time >= check_time >= start_time
         else:  # crosses midnight
             return check_time >= start_time or check_time <= stop_time
 
@@ -68,7 +65,6 @@ class Recorder:
         # If the current time is in between start and stop time, this will not start otherwise
         start_time = datetime.strptime(self.start_time, '%H:%M').time()
         stop_time = datetime.strptime(self.stop_time, '%H:%M').time()
-        local_time = datetime.now().time()
         if self.is_time_between(start_time, stop_time):
             logging.debug("Current time is within schedule, starting now")
             self.start_listening()
@@ -77,16 +73,14 @@ class Recorder:
         try:
             while not self.exit_event.is_set():
                 schedule.run_pending()
-                time2.sleep(1)
+                time.sleep(1)
         except KeyboardInterrupt:
             logging.info('KeyboardInterrupt received')
             self.exit()
 
     def exit(self):
         self.exit_event.set()
-
         schedule.clear()
-#        self.t.join(timeout=1)
         self.stop_listening()
 
     def start_listening(self):
@@ -100,7 +94,6 @@ class Recorder:
             return None
         else:
             self.stop_event.clear()
-
             logging.info("Starting Somnilopy")
             self.poller.current_consumer = self.processor.consume()
             self.thread = Thread(target=self.poller.poll)
@@ -142,7 +135,7 @@ class Recorder:
         return
 
     def _refresh_schedule(self):
-        if time2.strptime(self.start_time, '%H:%M') < time2.localtime() < time2.strptime(self.stop_time, '%H:%M'):
+        if time.strptime(self.start_time, '%H:%M') < time.localtime() < time.strptime(self.stop_time, '%H:%M'):
             logging.debug("Current time is within schedule, starting now")
             self.start_listening()
         schedule.clear()

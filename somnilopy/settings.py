@@ -3,7 +3,7 @@ import pyaudio
 
 # Flask settings
 
-FLASK_SERVER_NAME = '192.168.0.18:5000'
+FLASK_SERVER_NAME = '127.0.0.1:5000'
 FLASK_DEBUG = False  # Do not use debug mode in production
 
 # Flask-Restplus settings
@@ -20,9 +20,11 @@ STREAM_RATE = 44100
 
 # Somnilopy settings
 LABELS = ['is-sleeptalking', 'not-sleeptalking', 'autosave']
-PREFIX_DIR = 'recordings'
+RECORDINGS_DIR = 'recordings'
+FILENAME_PREFIX = 'autosave'
+TIMESTAMP_FORMAT = '%Y-%m-%d_%H-%M-%S'
 
-
+# Speech detection settings
 MIN_LENGTH = 6
 MAX_SILENCE_TIME = 6
 SLEEPTALKING_VOL_THRESHOLD = 400

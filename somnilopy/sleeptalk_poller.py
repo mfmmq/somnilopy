@@ -24,9 +24,6 @@ class SleeptalkPoller:
             frames_per_buffer=settings.STREAM_CHUNK
         )
 
-    def update_threshold(self, new_threshold):
-        self.min_is_sleeptalking_threshold = new_threshold
-
     def poll(self):
         self._setup_stream()
         logging.info("Now recording!")
@@ -40,7 +37,7 @@ class SleeptalkPoller:
                 if sound.is_silent:
                     sound = Sound()
                 elif sound.done_recording:
-                    logging.info(f"Sending sleeptalking of length {sound.length:.2f} seconds")
+                    logging.info(f"Recorded sleeptalking of length {sound.length:.2f} seconds")
                     self.current_consumer.send((sound, datetime.now()))
                     sound = Sound()
                 sound.add_buffer(self.stream.read(settings.STREAM_CHUNK))

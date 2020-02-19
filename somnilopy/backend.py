@@ -9,11 +9,11 @@ import threading
 
 
 class Backend:
-    def __init__(self, recorder):
+    def __init__(self, recorder, server_name):
         self.app = Flask(__name__)
         self.app.recorder = recorder
         self.run_recorder()
-        self.configure_app()
+        self.configure_app(server_name)
         self.initialize_app()
         CORS(self.app)
 
@@ -28,8 +28,8 @@ class Backend:
         self.app.run()
         self.app.t.join()
 
-    def configure_app(self):
-        self.app.config['SERVER_NAME'] = settings.FLASK_SERVER_NAME
+    def configure_app(self, server_name):
+        self.app.config['SERVER_NAME'] = server_name if server_name else settings.FLASK_SERVER_NAME
         self.app.config['SWAGGER_UI_DOC_EXPANSION'] = settings.RESTPLUS_SWAGGER_UI_DOC_EXPANSION
         self.app.config['RESTPLUS_VALIDATE'] = settings.RESTPLUS_VALIDATE
         self.app.config['RESTPLUS_MASK_SWAGGER'] = settings.RESTPLUS_MASK_SWAGGER

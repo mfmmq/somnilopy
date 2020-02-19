@@ -1,12 +1,24 @@
 import logging
+from datetime import datetime
 from flask import Response, jsonify, request, send_file, abort
 from flask_restplus import Resource, fields
-from somnilopy.handlers.folder_handler import FolderHandler
+from somnilopy.handlers.file_handler import FileHandler
 from somnilopy.api.restplus import api
+from somnilopy import settings
 
-
-file_handler = FolderHandler()
+file_handler = FileHandler()
 files_ns = api.namespace('files', description='Operations related to sleeptalking audio files')
+
+file_info_model = files_ns.model("info", {"label": fields.String(description="New file label", required=False),
+                                          "comment": fields.String(description="New file comment", required=False)})
+
+
+def extract_timestamp(filename):
+    try:
+        filename, _ = filename.split('.')
+        return datetime.strptime(filename[-19:], settings.TIMESTAMP_FORMAT)
+    except:
+        return datetime.now()
 
 
 def extract_time(json):
@@ -29,19 +41,40 @@ def extract_date(json):
 
 @files_ns.route('/')
 class FilesCollection(Resource):
-    @api.response(200, 'Successfully got information for all audio files')
+    @api.response(200, 'Successfully got information for audio files')
     def get(self):
         """
-        Get information for all audio files
-        :return: Returns
+        Get information for some audio files, based on pagination.
+        Getting information for all audio files can be expensive, so allow returning only n at one time
+        :param dates: Number of dates to get all file info for
+        :param offset: Offset to start count from. This system is fairly rudimentary and doesn't use an id
+        :param descending: Start from latest date if True
+        :return:
         """
-        file_paths = file_handler.get_all_file_paths()
-        file_info = []
-        for file_path in file_paths:
-            file_info.extend(file_handler.get_file_info_by_path(file_path))
+        args = request.args
+        files_by_date = file_handler.get_file_paths_by_date()
+        dates = sorted(files_by_date.keys())
+        count = int(args.get('count', len(dates)))
+        descending = bool(args.get('descending', True))
+        offset = int(args.get('offset', 0))
+        dates = dates[offset:count + offset]
+        for date in dates:
+            files_by_date[date] = [file_handler.get_file_info_by_path(path)[0] for path in files_by_date[date]]
+        files_by_date = [{'date': date, 'files': files_by_date[date]} for date in dates]
+        files_by_date.sort(key=extract_date, reverse=descending)
+        logging.debug(files_by_date)
+        logging.info(f'Got files by date: {files_by_date}')
+        return jsonify(files_by_date)
+
+    @staticmethod
+    def _process_file_info(file_info):
+        """
+        Create a list of info grouped by date ie file: [..] date: 04-09
+        This will make things easier to display on the frontend
+        :param file_info:
+        :return:
+        """
         file_info.sort(key=lambda f: f['time'])
-        # Create a list of info gro
-        # Create a list of info grouped by date ie file: [..] date: 04-09
         files_by_date = []
         for file in file_info:
             if file['date'] not in [date_group['date'] for date_group in files_by_date]:
@@ -50,12 +83,7 @@ class FilesCollection(Resource):
                 if file['date'] == date_group['date']:
                     date_group['files'].append(file)
         files_by_date.sort(key=extract_date, reverse=True)
-
-        return jsonify(files_by_date)
-
-
-file_info_model = files_ns.model("info", {"label": fields.String(description="New file label", required=False),
-                                          "comment": fields.String(description="New file comment", required=False)})
+        return files_by_date
 
 
 @files_ns.route('/<name>')
