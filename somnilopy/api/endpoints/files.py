@@ -63,7 +63,7 @@ class FilesCollection(Resource):
         files_by_date = [{'date': date, 'files': files_by_date[date]} for date in dates]
         files_by_date.sort(key=extract_date, reverse=descending)
         logging.debug(files_by_date)
-        logging.info(f'Got files by date: {files_by_date}')
+        logging.info(f'Got {sum([len(files_by_date[date]) for date in files_by_date])} files for dates {[d for d in files_by_date]}')
         return jsonify(files_by_date)
 
     @staticmethod
