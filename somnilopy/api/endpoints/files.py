@@ -52,11 +52,12 @@ class FilesCollection(Resource):
         :return:
         """
         args = request.args
-        files_by_date = file_handler.get_file_paths_by_date()
-        dates = files_by_date.keys()
-        count = int(args.get('count', len(dates)))
+        no_break = bool(args.get('no_break', False))
         descending = bool(args.get('descending', True))
         offset = int(args.get('offset', 0))
+        files_by_date = file_handler.get_file_paths_by_date(no_break=no_break)
+        dates = files_by_date.keys()
+        count = int(args.get('count', len(dates)))
         dates = sorted(list(dates), reverse=descending)
         dates = dates[offset:count + offset]
         for date in dates:

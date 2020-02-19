@@ -128,11 +128,13 @@ class FileHandler:
     def delete(self, name):
         return self.apply_label(name, 'delete')
 
-    def get_file_paths_by_date(self):
+    def get_file_paths_by_date(self, no_break=False):
         all_file_paths = self.get_all_file_paths()
         files_by_date = {}
         for f in all_file_paths:
             date = f.split('.')[0][-19:-9]
+            if no_break:
+                date = date.replace("-", "&#x2011;")  # Use special hyphen that doens't line break or wrap
             if date not in files_by_date:
                 files_by_date[date] = []
             files_by_date[date].append(f)
