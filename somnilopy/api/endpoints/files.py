@@ -74,7 +74,7 @@ class FilesByDate(Resource):
         descending = bool(args.get('descending', False))
 
         file_info = file_handler.get_file_info_by_date(date.replace("&#x2011;", "-"))
-        logging.info(file_info)
+        logging.debug(file_info)
         file_info.sort(key=extract_date, reverse=descending)
 
         return file_info
