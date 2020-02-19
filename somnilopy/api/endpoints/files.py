@@ -72,7 +72,7 @@ class FilesByDate(Resource):
     def get(self, date):
         args = request.args
         descending = bool(args.get('descending', False))
-
+        logging.info(f'Request received: {date}')
         file_info = file_handler.get_file_info_by_date(date.replace("&#x2011;", "-"))
         logging.debug(file_info)
         file_info.sort(key=extract_date, reverse=descending)
@@ -93,10 +93,8 @@ class DatesCollection(Resource):
 
         count = int(args.get('count', len(dates)))
 
-        if no_break:
-            dates = [d.replace("-", "&#x2011;") for d in dates]
         dates = dates[offset:offset + count]
-        return [{'date': date, 'files': None} for date in dates]
+        return [{'date': date.replace("-", "&#x2011;"), 'raw_date': date, 'files': None} for date in dates]
 
 
 @files_ns.route('/<name>')

@@ -216,7 +216,7 @@ function loadChartBarColor(date_num, time_num) {
 //}
 
 function loadTimeLinks(date_num, time_num) {
-  path = HOST+'/files/'+obj_files[date_num].date
+  path = HOST+'/files/'+obj_files[date_num].raw_date
   console.log(path)
 
   var mimeType = "application/json"
