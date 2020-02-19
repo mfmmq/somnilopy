@@ -3,7 +3,7 @@ import pyaudio
 
 # Flask settings
 
-FLASK_SERVER_NAME = '127.0.0.1:5000'
+FLASK_SERVER_NAME = '192.168.0.18:5000'
 FLASK_DEBUG = False  # Do not use debug mode in production
 
 # Flask-Restplus settings
@@ -25,4 +25,4 @@ PREFIX_DIR = 'recordings'
 
 MIN_LENGTH = 6
 MAX_SILENCE_TIME = 6
-SLEEPTALKING_VOL_THRESHOLD = 100
+SLEEPTALKING_VOL_THRESHOLD = 400
