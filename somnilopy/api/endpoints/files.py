@@ -41,41 +41,19 @@ def extract_date(json):
 
 @files_ns.route('/')
 class FilesCollection(Resource):
-    @api.response(200, 'Successfully got information for audio files')
+    @api.response(200, 'Successfully got information for all audio files')
     def get(self):
         """
-        Get information for some audio files, based on pagination.
-        Getting information for all audio files can be expensive, so allow returning only n at one time
-        :param dates: Number of dates to get all file info for
-        :param offset: Offset to start count from. This system is fairly rudimentary and doesn't use an id
-        :param descending: Start from latest date if True
-        :return:
+        Get information for all audio files
+        :return: Returns
         """
-        args = request.args
-        no_break = bool(args.get('no_break', False))
-        descending = bool(args.get('descending', True))
-        offset = int(args.get('offset', 0))
-        files_by_date = file_handler.get_file_paths_by_date(no_break=no_break)
-        dates = files_by_date.keys()
-        count = int(args.get('count', len(dates)))
-        dates = sorted(list(dates), reverse=descending)
-        dates = dates[offset:count + offset]
-        for date in dates:
-            files_by_date[date] = [file_handler.get_file_info_by_path(path)[0] for path in files_by_date[date]]
-        files_by_date = [{'date': date, 'files': files_by_date[date]} for date in dates]
-        files_by_date.sort(key=extract_date, reverse=descending)
-        logging.info(f'Got files for dates {[d["date"] for d in files_by_date]}')
-        return jsonify(files_by_date)
-
-    @staticmethod
-    def _process_file_info(file_info):
-        """
-        Create a list of info grouped by date ie file: [..] date: 04-09
-        This will make things easier to display on the frontend
-        :param file_info:
-        :return:
-        """
+        file_paths = file_handler.get_all_file_paths()
+        file_info = []
+        for file_path in file_paths:
+            file_info.extend(file_handler.get_file_info_by_path(file_path))
         file_info.sort(key=lambda f: f['time'])
+        # Create a list of info gro
+        # Create a list of info grouped by date ie file: [..] date: 04-09
         files_by_date = []
         for file in file_info:
             if file['date'] not in [date_group['date'] for date_group in files_by_date]:
@@ -84,7 +62,41 @@ class FilesCollection(Resource):
                 if file['date'] == date_group['date']:
                     date_group['files'].append(file)
         files_by_date.sort(key=extract_date, reverse=True)
-        return files_by_date
+
+        return jsonify(files_by_date)
+
+
+@files_ns.route('/<date>')
+class FilesByDate(Resource):
+    @api.response(200, 'Successfully got file info for date')
+    def get(self, date):
+        args = request.args
+        descending = bool(args.get('descending', False))
+
+        file_info = file_handler.get_file_info_by_date(date.replace("&#x2011;", "-"))
+        logging.info(file_info)
+        file_info.sort(key=extract_date, reverse=descending)
+
+        return file_info
+
+
+@files_ns.route('/dates')
+class DatesCollection(Resource):
+    @api.response(200, 'Successfully got audio dates')
+    def get(self):
+        args = request.args
+        no_break = bool(args.get('no_break', False))
+        descending = bool(args.get('descending', True))
+        offset = int(args.get('offset', 0))
+
+        dates = sorted(file_handler.get_dates(), reverse=descending)
+
+        count = int(args.get('count', len(dates)))
+
+        if no_break:
+            dates = [d.replace("-", "&#x2011;") for d in dates]
+        dates = dates[offset:offset + count]
+        return [{'date': date, 'files': None} for date in dates]
 
 
 @files_ns.route('/<name>')

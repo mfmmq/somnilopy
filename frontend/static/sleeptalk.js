@@ -1,12 +1,12 @@
 var DEFAULT_BACKGROUND_COLOR = "rgba(190, 190, 190, 0.3)";
 var DEFAULT_BORDER_COLOR = "rgb(120, 120, 120, 0.5)";
 var DOWNLOAD_URL = "download";
-var HOST = "http://192.168.0.18:5000/api";
+var HOST = "http://127.0.0.1:5000/api";
 
 function loadPage(date_num, time_num) {
 
   var request = new XMLHttpRequest();
-  request.open('GET', HOST+'/files');
+  request.open('GET', HOST+'/files/dates');
   request.send();
   document.getElementById('error-message').style.display = 'block'
   document.getElementById('error-message').innerHTML = "Could not load sleeptalking data from "+HOST+" . <br>Is the server running?"
@@ -32,9 +32,6 @@ function loadPage(date_num, time_num) {
 
       // Load page
       loadDateLinks(date_num);
-      loadTimeLinks(date_num, time_num)
-      loadFileInfo(date_num, time_num); 
-      loadButtons(date_num, time_num);
     }
     else {
       document.getElementById('error-message').style.display = 'block'
@@ -175,8 +172,9 @@ function loadDateLinks(date_num) {
   }
   link_string = link_string.concat("</i></font>")
   document.getElementById("datenav").innerHTML = link_string;
-  recreateChart(date_num)
   loadTimeLinks(date_num, 0)
+  console.log(obj_files)
+
 }
 
 function recreateChart(date_num) {
@@ -201,21 +199,60 @@ function loadChartBarColor(date_num, time_num) {
   chart.update()
 }
 
+//function loadTimeLinks(date_num, time_num) {
+//  files = obj_files[date_num].files
+//  link_string = "<font style='text-decoration: italic'><i>"
+//  for (j=0; j<files.length; j++) {
+//    a_href_class = "time-link";
+//    if (j == time_num) {
+//      a_href_class += " time-link active";
+//    }
+//    link_string = link_string.concat('<a href=# onClick="loadTimeLinks('+date_num+', '+j+')" class="'+a_href_class+'">'+files[j].time+'</a> ')
+//  }
+//  link_string = link_string.concat("</i></font>")
+//  document.getElementById("timenav").innerHTML = link_string;
+//  loadFileInfo(date_num, time_num)
+//  loadChartBarColor(date_num, time_num)
+//}
+
 function loadTimeLinks(date_num, time_num) {
-  files = obj_files[date_num].files
-  link_string = "<font style='text-decoration: italic'><i>"
-  for (j=0; j<files.length; j++) {
-    a_href_class = "time-link";
-    if (j == time_num) {
-      a_href_class += " time-link active";
+  path = HOST+'/files/'+obj_files[date_num].date
+  console.log(path)
+
+  var mimeType = "application/json"
+  request = new XMLHttpRequest();
+  request.open('GET', path);
+  request.setRequestHeader('Content-type', mimeType);  
+  request.send();
+  request.addEventListener('readystatechange', function(e) {
+    if(request.readyState == 4) {
+      if (request.status == 200) {
+        obj_files[date_num].files = JSON.parse(request.responseText);
+        console.log(obj_files[date_num])
+        files = obj_files[date_num].files
+        link_string = "<font style='text-decoration: italic'><i>"
+        for (j=0; j<files.length; j++) {
+          a_href_class = "time-link";
+          if (j == time_num) {
+            a_href_class += " time-link active";
+          }
+          link_string = link_string.concat('<a href=# onClick="loadTimeLinks('+date_num+', '+j+')" class="'+a_href_class+'">'+files[j].time+'</a> ')
+        }
+        link_string = link_string.concat("</i></font>")
+        document.getElementById("timenav").innerHTML = link_string;
+        loadFileInfo(date_num, time_num);
+        recreateChart(date_num)
+        
+        loadChartBarColor(date_num, time_num);
+      }
+      else {
+        alert("Unable to fetch time links");
+      }
     }
-    link_string = link_string.concat('<a href=# onClick="loadTimeLinks('+date_num+', '+j+')" class="'+a_href_class+'">'+files[j].time+'</a> ')
   }
-  link_string = link_string.concat("</i></font>")
-  document.getElementById("timenav").innerHTML = link_string;
-  loadFileInfo(date_num, time_num)
-  loadChartBarColor(date_num, time_num)
+ )
 }
+
 
 function loadFileInfo(date_num, time_num) {
   // Write a little blurb
@@ -225,6 +262,7 @@ function loadFileInfo(date_num, time_num) {
   document.getElementById("about-input-speech").placeholder = obj_file.comment
   document.getElementById("about-input-speech").value = obj_file.comment
   document.getElementById("about-button-speech").onclick = function() {updateComment(date_num, time_num)}
+  document.getElementById('about-input-speech-help').innerHTML = ''
   loadButtons(date_num, time_num)
   loadLabels(date_num, time_num)
 }

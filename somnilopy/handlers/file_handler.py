@@ -108,7 +108,6 @@ class FileHandler:
             raise FileNotFoundError
         try:
             date, time = path.split("_")[1:3]
-            date = date.replace("-", "&#x2011;")  # Use special hyphen that doens't line break or wrap
             time = time.replace(".flac", "").replace("-", ":")[0:8]
             label, name = os.path.split(path)
             label = os.path.split(label)[1]
@@ -128,15 +127,21 @@ class FileHandler:
     def delete(self, name):
         return self.apply_label(name, 'delete')
 
-    def get_file_paths_by_date(self, no_break=False):
+    def get_dates(self):
         all_file_paths = self.get_all_file_paths()
         files_by_date = {}
         for f in all_file_paths:
             date = f.split('.')[0][-19:-9]
-            if no_break:
-                date = date.replace("-", "&#x2011;")  # Use special hyphen that doens't line break or wrap
             if date not in files_by_date:
                 files_by_date[date] = []
             files_by_date[date].append(f)
         logging.debug(f'Got all dates: {files_by_date}')
+        return files_by_date
+
+    def get_file_info_by_date(self, date):
+        all_file_paths = self.get_all_file_paths()
+        files_by_date = []
+        for f in all_file_paths:
+            if date in f:
+                files_by_date.extend(self.get_file_info_by_path(f))
         return files_by_date
