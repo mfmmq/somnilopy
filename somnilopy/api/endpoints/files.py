@@ -62,7 +62,6 @@ class FilesCollection(Resource):
             files_by_date[date] = [file_handler.get_file_info_by_path(path)[0] for path in files_by_date[date]]
         files_by_date = [{'date': date, 'files': files_by_date[date]} for date in dates]
         files_by_date.sort(key=extract_date, reverse=descending)
-        logging.debug(files_by_date)
         logging.info(f'Got files for dates {[d["date"] for d in files_by_date]}')
         return jsonify(files_by_date)
 

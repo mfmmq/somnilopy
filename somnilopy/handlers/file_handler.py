@@ -132,7 +132,7 @@ class FileHandler:
         all_file_paths = self.get_all_file_paths()
         files_by_date = {}
         for f in all_file_paths:
-            date = f.split('.')[0][-19:9]
+            date = f.split('.')[0][-19:-9]
             if date not in files_by_date:
                 files_by_date[date] = []
             files_by_date[date].append(f)
