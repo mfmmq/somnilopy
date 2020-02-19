@@ -13,14 +13,6 @@ file_info_model = files_ns.model("info", {"label": fields.String(description="Ne
                                           "comment": fields.String(description="New file comment", required=False)})
 
 
-def extract_timestamp(filename):
-    try:
-        filename, _ = filename.split('.')
-        return datetime.strptime(filename[-19:], settings.TIMESTAMP_FORMAT)
-    except:
-        return datetime.now()
-
-
 def extract_time(json):
     try:
         # Also convert to int since update_time will be string.  When comparing

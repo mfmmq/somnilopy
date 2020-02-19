@@ -46,7 +46,7 @@ function selectBar(evt, date_num) {
     var ind = element[0]._index;
     //chart.data.datasets[0].data.splice(ind, 1);
     //chart.data.labels.splice(ind, 1);
-    loadTimeLinks(date_num, ind, false)
+    updateTimeLinks(date_num, ind)
     chart.update();
   }
 }
@@ -172,7 +172,7 @@ function loadDateLinks(date_num) {
   }
   link_string = link_string.concat("</i></font>")
   document.getElementById("datenav").innerHTML = link_string;
-  loadTimeLinks(date_num, 0, true)
+  loadTimeLinks(date_num, 0)
   console.log(obj_files)
 
 }
@@ -199,23 +199,23 @@ function loadChartBarColor(date_num, time_num) {
   chart.update()
 }
 
-//function loadTimeLinks(date_num, time_num) {
-//  files = obj_files[date_num].files
-//  link_string = "<font style='text-decoration: italic'><i>"
-//  for (j=0; j<files.length; j++) {
-//    a_href_class = "time-link";
-//    if (j == time_num) {
-//      a_href_class += " time-link active";
-//    }
-//    link_string = link_string.concat('<a href=# onClick="loadTimeLinks('+date_num+', '+j+')" class="'+a_href_class+'">'+files[j].time+'</a> ')
-//  }
-//  link_string = link_string.concat("</i></font>")
-//  document.getElementById("timenav").innerHTML = link_string;
-//  loadFileInfo(date_num, time_num)
-//  loadChartBarColor(date_num, time_num)
-//}
+function updateTimeLinks(date_num, time_num) {
+  files = obj_files[date_num].files
+  link_string = "<font style='text-decoration: italic'><i>"
+  for (j=0; j<files.length; j++) {
+    a_href_class = "time-link";
+    if (j == time_num) {
+      a_href_class += " time-link active";
+    }
+    link_string = link_string.concat('<a href=# onClick="updateTimeLinks('+date_num+', '+j+')" class="'+a_href_class+'">'+files[j].time+'</a> ')
+  }
+  link_string = link_string.concat("</i></font>")
+  document.getElementById("timenav").innerHTML = link_string;
+  loadFileInfo(date_num, time_num)
+  loadChartBarColor(date_num, time_num)
+}
 
-function loadTimeLinks(date_num, time_num, recreate) {
+function loadTimeLinks(date_num, time_num) {
   path = HOST+'/files/'+obj_files[date_num].raw_date
   console.log(path)
 
@@ -228,23 +228,11 @@ function loadTimeLinks(date_num, time_num, recreate) {
     if(request.readyState == 4) {
       if (request.status == 200) {
         obj_files[date_num].files = JSON.parse(request.responseText);
+        recreateChart(date_num)
+        updateTimeLinks(date_num, time_num)
         console.log(obj_files[date_num])
         files = obj_files[date_num].files
-        link_string = "<font style='text-decoration: italic'><i>"
-        for (j=0; j<files.length; j++) {
-          a_href_class = "time-link";
-          if (j == time_num) {
-            a_href_class += " time-link active";
-          }
-          link_string = link_string.concat('<a href=# onClick="loadTimeLinks('+date_num+', '+j+', false)" class="'+a_href_class+'">'+files[j].time+'</a> ')
-        }
-        link_string = link_string.concat("</i></font>")
-        document.getElementById("timenav").innerHTML = link_string;
-        loadFileInfo(date_num, time_num);
-        if (recreate) {
-          recreateChart(date_num)
-        }
-        loadChartBarColor(date_num, time_num);
+        updateTimeLinks(date_num, time_num)
       }
       else {
         alert("Unable to fetch time links");
@@ -361,7 +349,7 @@ function playAllSample(date_num) {
 
 function setDelay(date_num, time_num, delay) {
   setTimeout(function(){
-    loadTimeLinks(date_num, time_num, false)
+    updateTimeLink(date_num, time_num)
     play_all_button = document.getElementById("btn-play-all-sample");
     play_all_button.disabled = true;
     playSample(date_num, time_num)
@@ -445,8 +433,8 @@ function markDelete(date_num, time_num) {
   request.addEventListener('readystatechange', function(e) {
     if(request.readyState == 4) {
       if (request.status == 200) {
-        obj_files[date_num].files[time_num].label = label
-        loadTimeLinks(date_num, time_num, false)
+        obj_files[date_num].files.splice(time_num, 1)
+        loadTimeLinks(date_num, time_num)
       }
       else {
         alert("delete unsuccessful: "+request.status + " "+request.message)
@@ -488,15 +476,12 @@ function checkRecording() {
   request.send();
   request.addEventListener('readystatechange', function(e) {
       if(request.readyState == 4) {
-        console.log('Checking recording status, got request status ' + request.status + ' and message ' + request.responseText )
         if (request.status == 200) {
           if (request.responseText == "true\n") {
-            console.log('Still recording')
             document.getElementById('recording-icon-on').style.display = 'block'
             document.getElementById('recording-icon-off').style.display = 'none'
           }
           else {
-            console.log('Not recording')
             document.getElementById('recording-icon-on').style.display = 'none'
             document.getElementById('recording-icon-off').style.display = 'block'          
           }
