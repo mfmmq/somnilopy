@@ -53,10 +53,11 @@ class FilesCollection(Resource):
         """
         args = request.args
         files_by_date = file_handler.get_file_paths_by_date()
-        dates = sorted(files_by_date.keys())
+        dates = files_by_date.keys()
         count = int(args.get('count', len(dates)))
         descending = bool(args.get('descending', True))
         offset = int(args.get('offset', 0))
+        dates = sorted(list(dates), reverse=descending)
         dates = dates[offset:count + offset]
         for date in dates:
             files_by_date[date] = [file_handler.get_file_info_by_path(path)[0] for path in files_by_date[date]]
