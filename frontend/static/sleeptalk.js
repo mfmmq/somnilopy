@@ -2,14 +2,17 @@ var DEFAULT_BACKGROUND_COLOR = "rgba(190, 190, 190, 0.3)";
 var DEFAULT_BORDER_COLOR = "rgb(120, 120, 120, 0.5)";
 var DOWNLOAD_URL = "download";
 var HOST = "http://192.168.0.18:5000/api";
+var sound = null;
+// Use global so we can pause
+
 
 function loadPage(date_num, time_num) {
 
   var request = new XMLHttpRequest();
-  request.open('GET', HOST+'/files/dates?no_break=True');
+  request.open('GET', HOST + '/files/dates?no_break=True');
   request.send();
-  document.getElementById('error-message').style.display = 'block'
-  document.getElementById('error-message').innerHTML = "Could not load sleeptalking data from "+HOST+" . <br>Is the server running?"
+  document.getElementById('error-message').style.display = 'block';
+  document.getElementById('error-message').innerHTML = "Could not load sleeptalking data from " + HOST + " . <br>Is the server running?"
   document.getElementById('container-somnilopy').style.display = 'none'
 
   request.onreadystatechange=(e)=>{
@@ -135,20 +138,6 @@ function createChartData(day_obj_files) {
         borderColor: border_color
     }]
   };
-
-//  var chart_data1 =  {
-//    labels: start_times,
-//    datasets: [
-//        {
-//        label: 'length',
-//        data: my_data,
-//        borderWidth: 1,
-//        backgroundColor: background_color,
-//        borderColor: border_color
-//    }]
-//  };
-//  console.log(my_data)
-//  
   return chart_data
 }
 
@@ -305,7 +294,10 @@ function playSample(date_num, time_num) {
             window.URL.revokeObjectURL(url);  
             }, 20
           ); 
-          var sound = new Howl({
+          if (sound != null) {
+            stopSound()
+          }
+          sound = new Howl({
             src: [url],
             autoplay: true,
             loop: false,
@@ -313,14 +305,13 @@ function playSample(date_num, time_num) {
             format: 'flac'
           });
           sound.on('end', function(){
-            console.log('Finished playing file '+file_name);
-            document.getElementById('btn-play-sample').classList.remove('active');
-            document.getElementById('btn-play-sample').disabled = false;
+            stopSound()
           });
           Howler.volume(0.5);
           sound.load();
-          document.getElementById('btn-play-sample').disabled = true;
-          document.getElementById('btn-play-sample').classList.add('active')
+          document.getElementById('btn-play-sample').innerHTML = 'Pause';
+          document.getElementById('btn-play-sample').onclick= function() {stopSound()}
+          document.getElementById('btn-play-sample').classList.add('active');
           sound.play();
 
         }
@@ -331,6 +322,18 @@ function playSample(date_num, time_num) {
     }
   )
 }
+
+function stopSound() {
+  sound.stop();
+  sound.unload();
+  sound = null;
+  console.log('Finished playing file '+file_name);
+  document.getElementById('btn-play-sample').classList.remove('active');
+  document.getElementById('btn-play-sample').onclick= function() {playSample(date_num, time_num)}
+  document.getElementById('btn-play-sample').innerHTML  = 'Play';
+}
+
+
 
 function playAllSample(date_num) {
   play_all_button = document.getElementById("btn-play-all-sample");
@@ -441,7 +444,8 @@ function markDelete(date_num, time_num) {
       }
     }
   }
-  )}
+  )
+}
 
 function updateComment(date_num, time_num) {
   new_comment = document.getElementById('about-input-speech').value
@@ -523,11 +527,11 @@ function controlRecording(controlType) {
 
 
 
-var ctx = document.getElementById('myChart').getContext('2d');
 var obj_files = [];
 var chart = null;
 checkRecording()
 loadPage(0,0)
+var ctx = document.getElementById('myChart').getContext('2d');
 var intervalID = setInterval(checkRecording, 10000);
 
 
