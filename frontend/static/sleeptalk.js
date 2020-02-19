@@ -6,7 +6,7 @@ var HOST = "http://192.168.0.18:5000/api";
 function loadPage(date_num, time_num) {
 
   var request = new XMLHttpRequest();
-  request.open('GET', HOST+'/files/dates');
+  request.open('GET', HOST+'/files/dates&no_break=True');
   request.send();
   document.getElementById('error-message').style.display = 'block'
   document.getElementById('error-message').innerHTML = "Could not load sleeptalking data from "+HOST+" . <br>Is the server running?"
