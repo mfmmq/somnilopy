@@ -349,7 +349,7 @@ function playAllSample(date_num) {
     play_all_button.disabled = false;
   }, delay);
 }
-git 
+
 function setDelay(date_num, time_num, delay) {
   setTimeout(function(){
     updateTimeLink(date_num, time_num)
